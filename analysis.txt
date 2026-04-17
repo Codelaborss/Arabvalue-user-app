@@ -1,0 +1,83 @@
+﻿Analyzing item_bottom_sheet.dart...
+
+  error - item_bottom_sheet.dart:5006:7 - Expected an identifier. - missing_identifier
+  error - item_bottom_sheet.dart:5006:7 - Expected to find ')'. - expected_token
+  error - item_bottom_sheet.dart:5007:6 - Expected to find ')'. - expected_token
+warning - item_bottom_sheet.dart:3:8 - Unused import: 'dart:convert'. Try removing the import directive. - unused_import
+warning - item_bottom_sheet.dart:251:39 - The receiver can't be null, so the null-aware operator '?.' is unnecessary. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+warning - item_bottom_sheet.dart:263:30 - The receiver can't be null, so the null-aware operator '?.' is unnecessary. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+warning - item_bottom_sheet.dart:266:23 - The receiver can't be null, so the null-aware operator '?.' is unnecessary. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+warning - item_bottom_sheet.dart:271:23 - The receiver can't be 'null' because of short-circuiting, so the null-aware operator '?.' can't be used. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+           - The operator '?' is causing the short circuiting at item_bottom_sheet.dart:267:31.
+warning - item_bottom_sheet.dart:286:19 - The receiver can't be null, so the null-aware operator '?.' is unnecessary. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+warning - item_bottom_sheet.dart:287:46 - The '!' will have no effect because the receiver can't be null. Try removing the '!' operator. - unnecessary_non_null_assertion
+warning - item_bottom_sheet.dart:444:30 - The left operand can't be null, so the right operand is never executed. Try removing the operator and the right operand. - dead_null_aware_expression
+warning - item_bottom_sheet.dart:1686:77 - The receiver can't be null, so the null-aware operator '?.' is unnecessary. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+warning - item_bottom_sheet.dart:1927:65 - The receiver can't be 'null' because of short-circuiting, so the null-aware operator '?.' can't be used. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+           - The operator '?' is causing the short circuiting at item_bottom_sheet.dart:1925:80.
+warning - item_bottom_sheet.dart:1929:85 - The receiver can't be 'null' because of short-circuiting, so the null-aware operator '?.' can't be used. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+           - The operator '?' is causing the short circuiting at item_bottom_sheet.dart:1929:77.
+warning - item_bottom_sheet.dart:1936:121 - The receiver can't be 'null' because of short-circuiting, so the null-aware operator '?.' can't be used. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+           - The operator '?' is causing the short circuiting at item_bottom_sheet.dart:1936:113.
+warning - item_bottom_sheet.dart:1941:65 - The receiver can't be 'null' because of short-circuiting, so the null-aware operator '?.' can't be used. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+           - The operator '?' is causing the short circuiting at item_bottom_sheet.dart:1939:80.
+warning - item_bottom_sheet.dart:1943:86 - The receiver can't be 'null' because of short-circuiting, so the null-aware operator '?.' can't be used. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+           - The operator '?' is causing the short circuiting at item_bottom_sheet.dart:1943:78.
+warning - item_bottom_sheet.dart:1947:85 - The receiver can't be 'null' because of short-circuiting, so the null-aware operator '?.' can't be used. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+           - The operator '?' is causing the short circuiting at item_bottom_sheet.dart:1947:77.
+warning - item_bottom_sheet.dart:1953:112 - The receiver can't be 'null' because of short-circuiting, so the null-aware operator '?.' can't be used. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+           - The operator '?' is causing the short circuiting at item_bottom_sheet.dart:1953:104.
+warning - item_bottom_sheet.dart:1954:107 - The receiver can't be 'null' because of short-circuiting, so the null-aware operator '?.' can't be used. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+           - The operator '?' is causing the short circuiting at item_bottom_sheet.dart:1954:99.
+warning - item_bottom_sheet.dart:1955:90 - The receiver can't be 'null' because of short-circuiting, so the null-aware operator '?.' can't be used. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+           - The operator '?' is causing the short circuiting at item_bottom_sheet.dart:1955:82.
+warning - item_bottom_sheet.dart:2082:71 - The receiver can't be null, so the null-aware operator '?.' is unnecessary. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+warning - item_bottom_sheet.dart:2086:71 - The receiver can't be null, so the null-aware operator '?.' is unnecessary. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+warning - item_bottom_sheet.dart:2093:71 - The receiver can't be null, so the null-aware operator '?.' is unnecessary. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+warning - item_bottom_sheet.dart:2098:71 - The receiver can't be null, so the null-aware operator '?.' is unnecessary. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+warning - item_bottom_sheet.dart:2103:75 - The receiver can't be null, so the null-aware operator '?.' is unnecessary. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+warning - item_bottom_sheet.dart:2124:101 - The receiver can't be null, so the null-aware operator '?.' is unnecessary. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+warning - item_bottom_sheet.dart:2133:75 - The receiver can't be null, so the null-aware operator '?.' is unnecessary. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+warning - item_bottom_sheet.dart:2142:67 - The receiver can't be null, so the null-aware operator '?.' is unnecessary. Try replacing the operator '?.' with '.'. - invalid_null_aware_operator
+warning - item_bottom_sheet.dart:5022:15 - The value of the local variable 'cartModel' isn't used. Try removing the variable or using it. - unused_local_variable
+   info - item_bottom_sheet.dart:94:9 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - item_bottom_sheet.dart:96:9 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - item_bottom_sheet.dart:171:9 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - item_bottom_sheet.dart:1298:82 - Unnecessary use of 'toList' in a spread. Try removing the invocation of 'toList'. - unnecessary_to_list_in_spreads
+   info - item_bottom_sheet.dart:1303:72 - Unnecessary use of 'toList' in a spread. Try removing the invocation of 'toList'. - unnecessary_to_list_in_spreads
+   info - item_bottom_sheet.dart:1309:64 - Unnecessary use of 'toList' in a spread. Try removing the invocation of 'toList'. - unnecessary_to_list_in_spreads
+   info - item_bottom_sheet.dart:1629:60 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - item_bottom_sheet.dart:1672:62 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - item_bottom_sheet.dart:2611:69 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors
+   info - item_bottom_sheet.dart:2858:37 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - item_bottom_sheet.dart:2887:54 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - item_bottom_sheet.dart:2922:32 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors
+   info - item_bottom_sheet.dart:3156:60 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - item_bottom_sheet.dart:3217:36 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - item_bottom_sheet.dart:3292:35 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - item_bottom_sheet.dart:3315:22 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - item_bottom_sheet.dart:3360:54 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - item_bottom_sheet.dart:3391:32 - Use 'const' with the constructor to improve performance. Try adding the 'const' keyword to the constructor invocation. - prefer_const_constructors
+   info - item_bottom_sheet.dart:3703:9 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - item_bottom_sheet.dart:3705:9 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - item_bottom_sheet.dart:3707:9 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - item_bottom_sheet.dart:3709:9 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - item_bottom_sheet.dart:3711:9 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - item_bottom_sheet.dart:3713:9 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - item_bottom_sheet.dart:3715:9 - Statements in an if should be enclosed in a block. Try wrapping the statement in a block. - curly_braces_in_flow_control_structures
+   info - item_bottom_sheet.dart:4663:42 - Unnecessary use of 'toList' in a spread. Try removing the invocation of 'toList'. - unnecessary_to_list_in_spreads
+   info - item_bottom_sheet.dart:4726:55 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - item_bottom_sheet.dart:4912:31 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - item_bottom_sheet.dart:4918:31 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - item_bottom_sheet.dart:4923:31 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - item_bottom_sheet.dart:4963:62 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - item_bottom_sheet.dart:4972:62 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - item_bottom_sheet.dart:4990:62 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - item_bottom_sheet.dart:4999:62 - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement. - deprecated_member_use
+   info - item_bottom_sheet.dart:5039:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - item_bottom_sheet.dart:5040:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - item_bottom_sheet.dart:5042:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+   info - item_bottom_sheet.dart:5043:63 - Unnecessary braces in a string interpolation. Try removing the braces. - unnecessary_brace_in_string_interps
+   info - item_bottom_sheet.dart:5044:5 - Don't invoke 'print' in production code. Try using a logging framework. - avoid_print
+
+69 issues found.

@@ -1,0 +1,2 @@
+D:/elak/User app and web/android/app/.cxx/Debug/291i6y2q/x86/CMakeFiles/edit_cache.dir
+D:/elak/User app and web/android/app/.cxx/Debug/291i6y2q/x86/CMakeFiles/rebuild_cache.dir
