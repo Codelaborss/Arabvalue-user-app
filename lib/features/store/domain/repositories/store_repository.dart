@@ -314,8 +314,10 @@ class StoreRepository implements StoreRepositoryInterface {
       double? upperValue}) async {
     ItemModel? storeItemModel;
     final filterString = filter != null ? jsonEncode(filter) : null;
+    Map<String, String> headers = await apiClient.getHeaderWithUserId();
     Response response = await apiClient.getData(
-        '${AppConstants.storeItemUri}?store_id=$storeID&category_id=${categoryID == 0 ? '[0]' : categoryID}&offset=$offset&limit=13&type=$type&filter=$filterString&rating_count=${rating ?? ''}&min_price=${lowerValue ?? ''}&max_price=${upperValue ?? ''}');
+        '${AppConstants.storeItemUri}?store_id=$storeID&category_id=${categoryID == 0 ? '[0]' : categoryID}&offset=$offset&limit=13&type=$type&filter=$filterString&rating_count=${rating ?? ''}&min_price=${lowerValue ?? ''}&max_price=${upperValue ?? ''}',
+        headers: headers);
     if (response.statusCode == 200) {
       storeItemModel = ItemModel.fromJson(response.body);
     }
@@ -326,8 +328,10 @@ class StoreRepository implements StoreRepositoryInterface {
   Future<ItemModel?> getStoreSearchItemList(String searchText, String? storeID,
       int offset, String type, int? categoryID) async {
     ItemModel? storeSearchItemModel;
+    Map<String, String> headers = await apiClient.getHeaderWithUserId();
     Response response = await apiClient.getData(
-        '${AppConstants.searchUri}items/search?store_id=$storeID&name=$searchText&offset=$offset&limit=10&type=$type&category_id=${categoryID ?? ''}');
+        '${AppConstants.searchUri}items/search?store_id=$storeID&name=$searchText&offset=$offset&limit=10&type=$type&category_id=${categoryID ?? ''}',
+        headers: headers);
     if (response.statusCode == 200) {
       storeSearchItemModel = ItemModel.fromJson(response.body);
     }
@@ -337,8 +341,10 @@ class StoreRepository implements StoreRepositoryInterface {
   Future<RecommendedItemModel?> _getStoreRecommendedItemList(
       int? storeId) async {
     RecommendedItemModel? recommendedItemModel;
+    Map<String, String> headers = await apiClient.getHeaderWithUserId();
     Response response = await apiClient.getData(
-        '${AppConstants.storeRecommendedItemUri}?store_id=$storeId&offset=1&limit=50');
+        '${AppConstants.storeRecommendedItemUri}?store_id=$storeId&offset=1&limit=50',
+        headers: headers);
     if (response.statusCode == 200) {
       recommendedItemModel = RecommendedItemModel.fromJson(response.body);
     }

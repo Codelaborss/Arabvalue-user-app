@@ -204,7 +204,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(title: 'Gift Card'),
+      appBar: CustomAppBar(title: 'gift_card'.tr),
       body: GetBuilder<GiftController>(builder: (giftController) {
         // Reset local state if the selected voucher has changed (e.g., when switching partners)
         if (giftController.selectedItem?.id != _lastSelectedItemId) {
@@ -244,7 +244,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Select a category',
+                    Text('select_a_category'.tr,
                         style: robotoBold.copyWith(
                             fontSize: Dimensions.fontSizeLarge)),
                     const SizedBox(height: 2),
@@ -335,13 +335,13 @@ class _GiftScreen1State extends State<GiftScreen1> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Select a Partner',
+                    Text('select_a_partner'.tr,
                         style: robotoBold.copyWith(
                             fontSize: Dimensions.fontSizeLarge)),
                     const SizedBox(height: Dimensions.paddingSizeSmall),
                     CustomTextField(
-                      titleText: 'Search for Partner',
-                      hintText: 'Search for Partner',
+                      titleText: 'search_for_partner'.tr,
+                      hintText: 'search_for_partner'.tr,
                       prefixIcon: Icons.search,
                       inputType: TextInputType.text,
                       controller: _searchController,
@@ -378,7 +378,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
 
                       if (filteredStores.isEmpty) {
                         return Center(
-                            child: Text('No partners found.',
+                            child: Text('no_partners_found'.tr,
                                 style: robotoRegular.copyWith(
                                     color: Theme.of(context).disabledColor)));
                       }
@@ -493,7 +493,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('TOTAL',
+                        Text('total'.tr,
                             style: robotoRegular.copyWith(
                                 color: Colors.grey, fontSize: 10)),
                         Row(
@@ -525,7 +525,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
                   Container(
                     width: 150,
                     child: CustomButton(
-                      buttonText: 'Buy Now',
+                      buttonText: 'buy_now'.tr,
                       isLoading: Get.find<CartController>().isLoading,
                       onPressed: () async {
                         String cartGroup =
@@ -555,11 +555,11 @@ class _GiftScreen1State extends State<GiftScreen1> {
                               : _emailController.text,
                           message: _messageController.text,
                           deliveryTime: _selectedTimingIndex == 0
-                              ? 'Instant'
+                              ? 'instant'.tr
                               : (_selectedDate != null
                                   ? DateFormat('dd/MM/yyyy')
                                       .format(_selectedDate!)
-                                  : 'Scheduled'),
+                                  : 'scheduled'.tr),
                           amount: cardTotalValue,
                           bonus: bonus,
                         );
@@ -599,7 +599,8 @@ class _GiftScreen1State extends State<GiftScreen1> {
                                 isGiftVoucher: true,
                               ));
                         } else {
-                          showCustomSnackBar('Failed to add gift card to cart');
+                          showCustomSnackBar(
+                              'failed_to_add_gift_card_to_cart'.tr);
                         }
                       },
                       radius: Dimensions.radiusDefault,
@@ -830,7 +831,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
                               end: Alignment.bottomRight,
                             ).createShader(bounds),
                             child: Text(
-                              '+${bonusPercentage.toStringAsFixed(0)}% Bonus',
+                              '+${bonusPercentage.toStringAsFixed(0)}% ${'bonus'.tr}',
                               style: robotoBold.copyWith(
                                 color: Colors.white,
                                 fontSize: 13,
@@ -916,14 +917,14 @@ class _GiftScreen1State extends State<GiftScreen1> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Top Up Value',
+        Text('top_up_value'.tr,
             style:
                 robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge)),
         const SizedBox(height: Dimensions.paddingSizeExtraSmall),
         const Divider(height: 1),
         const SizedBox(height: Dimensions.paddingSizeSmall),
         if (showFixedOptions) ...[
-          Text('Select Amount', style: robotoMedium),
+          Text('select_amount'.tr, style: robotoMedium),
           const SizedBox(height: Dimensions.paddingSizeSmall),
           Wrap(
             spacing: Dimensions.paddingSizeSmall,
@@ -961,10 +962,10 @@ class _GiftScreen1State extends State<GiftScreen1> {
           const SizedBox(height: Dimensions.paddingSizeDefault),
         ],
         if (isCustomEnabled) ...[
-          Text('Custom Amount', style: robotoMedium),
+          Text('custom_amount'.tr, style: robotoMedium),
           const SizedBox(height: Dimensions.paddingSizeSmall),
           CustomTextField(
-            hintText: 'Enter amount',
+            hintText: 'enter_amount'.tr,
             controller: _amountController,
             inputType: TextInputType.number,
             showLabelText: false,
@@ -990,7 +991,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
         // Bonus Tiers Section
         if (item?.bonusConfiguration != null &&
             item!.bonusConfiguration!.isNotEmpty) ...[
-          Text('Available Bonus Tiers:', style: robotoMedium),
+          Text('available_bonus_tiers'.tr, style: robotoMedium),
           const SizedBox(height: Dimensions.paddingSizeExtraSmall),
           Container(
             padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
@@ -1035,7 +1036,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
                         ),
                       ),
                       Text(
-                        '${bonus.toStringAsFixed(0)}% Bonus',
+                        '${bonus.toStringAsFixed(0)}% ${'bonus'.tr}',
                         style: isActiveTier
                             ? robotoBold.copyWith(
                                 color: Theme.of(context).primaryColor)
@@ -1056,7 +1057,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
           children: [
             Expanded(
               child: _buildBreakdownPill(
-                label: 'Amount to Pay:',
+                label: 'amount_to_pay'.tr,
                 value: _formatPrice(cardValue),
                 isSolid: false,
                 colors: [
@@ -1068,7 +1069,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
             const SizedBox(width: Dimensions.paddingSizeSmall),
             Expanded(
               child: _buildBreakdownPill(
-                label: 'Bonus:',
+                label: 'bonus'.tr,
                 value: _formatPrice(bonusValue),
                 isSolid: false,
                 colors: [
@@ -1080,7 +1081,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
             const SizedBox(width: Dimensions.paddingSizeSmall),
             Expanded(
               child: _buildBreakdownPill(
-                label: 'Total Card Value:',
+                label: 'total_card_value'.tr,
                 value: _formatPrice(amountToPay),
                 isSolid: true,
                 colors: _getVoucherColors(item?.voucherIds),
@@ -1159,7 +1160,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Select Occasion',
+        Text('select_occasion'.tr,
             style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeDefault)),
         const SizedBox(height: Dimensions.paddingSizeSmall),
         if (occasions != null && occasions.isNotEmpty)
@@ -1209,7 +1210,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
           )
         else
           Center(
-              child: Text('No occasions available',
+              child: Text('no_occasions_available'.tr,
                   style: robotoRegular.copyWith(
                       color: Theme.of(context).disabledColor))),
       ],
@@ -1221,7 +1222,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Select Design',
+        Text('select_design'.tr,
             style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeDefault)),
         const SizedBox(height: Dimensions.paddingSizeDefault),
         if (occasion?.icon != null && occasion!.icon!.isNotEmpty)
@@ -1301,7 +1302,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
           )
         else
           Center(
-              child: Text('No designs available',
+              child: Text('no_designs_available'.tr,
                   style: robotoRegular.copyWith(
                       color: Theme.of(context).disabledColor))),
       ],
@@ -1330,7 +1331,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Card Info',
+        Text('card_info'.tr,
             style:
                 robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge)),
         const SizedBox(height: Dimensions.paddingSizeExtraSmall),
@@ -1355,7 +1356,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
                   ),
                   child: Center(
                     child: Text(
-                      'Send as a Gift card',
+                      'send_as_a_gift_card'.tr,
                       style: robotoMedium.copyWith(
                         color: !_buyForSelf
                             ? Colors.white
@@ -1383,7 +1384,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
                   ),
                   child: Center(
                     child: Text(
-                      'Buy for your self',
+                      'buy_for_your_self'.tr,
                       style: robotoMedium.copyWith(
                         color: _buyForSelf
                             ? Colors.white
@@ -1399,10 +1400,10 @@ class _GiftScreen1State extends State<GiftScreen1> {
         ),
         if (!_buyForSelf) ...[
           const SizedBox(height: Dimensions.paddingSizeLarge),
-          Text('Recipient Name Here', style: robotoMedium),
+          Text('recipient_name_here'.tr, style: robotoMedium),
           const SizedBox(height: Dimensions.paddingSizeSmall),
           CustomTextField(
-            hintText: 'John Doe',
+            hintText: 'john_doe'.tr,
             controller: _firstNameController,
             inputType: TextInputType.name,
             showLabelText: false,
@@ -1411,10 +1412,10 @@ class _GiftScreen1State extends State<GiftScreen1> {
             fillColor: Colors.white,
           ),
           const SizedBox(height: Dimensions.paddingSizeDefault),
-          Text('Enter Message (Optional)', style: robotoMedium),
+          Text('enter_message_optional'.tr, style: robotoMedium),
           const SizedBox(height: Dimensions.paddingSizeSmall),
           CustomTextField(
-            hintText: 'Write your message here...',
+            hintText: 'write_your_message_here'.tr,
             controller: _messageController,
             inputType: TextInputType.multiline,
             maxLines: 3,
@@ -1433,7 +1434,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
             ),
           ]),
           const SizedBox(height: Dimensions.paddingSizeDefault),
-          Text('Message Templates',
+          Text('message_templates'.tr,
               style: robotoRegular.copyWith(
                   color: Theme.of(context).disabledColor,
                   fontSize: Dimensions.fontSizeSmall)),
@@ -1492,16 +1493,16 @@ class _GiftScreen1State extends State<GiftScreen1> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Delivery via Email',
+        Text('delivery_via_email'.tr,
             style:
                 robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge)),
         const SizedBox(height: Dimensions.paddingSizeExtraSmall),
         const Divider(height: 1),
         const SizedBox(height: Dimensions.paddingSizeDefault),
-        Text('Share via Email', style: robotoMedium),
+        Text('share_via_email'.tr, style: robotoMedium),
         const SizedBox(height: Dimensions.paddingSizeSmall),
         CustomTextField(
-          hintText: 'Enter Recipient Email',
+          hintText: 'enter_recipient_email'.tr,
           controller: _emailController,
           inputType: TextInputType.emailAddress,
           showLabelText: false,
@@ -1510,13 +1511,13 @@ class _GiftScreen1State extends State<GiftScreen1> {
           fillColor: Colors.white,
         ),
         const SizedBox(height: Dimensions.paddingSizeDefault),
-        Text('E-mail Delivery Time', style: robotoMedium),
+        Text('email_delivery_time'.tr, style: robotoMedium),
         const SizedBox(height: Dimensions.paddingSizeSmall),
         Row(
           children: [
             Expanded(
               child: CustomButton(
-                buttonText: 'Send on future date',
+                buttonText: 'send_on_future_date'.tr,
                 onPressed: () {
                   setState(() {
                     _selectedTimingIndex = 1;
@@ -1536,7 +1537,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
             const SizedBox(width: Dimensions.paddingSizeSmall),
             Expanded(
               child: CustomButton(
-                buttonText: 'Send instantly',
+                buttonText: 'send_instantly'.tr,
                 onPressed: () {
                   setState(() {
                     _selectedTimingIndex = 0;
@@ -1585,7 +1586,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
                   Text(
                     _selectedDate != null
                         ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
-                        : 'Select Date',
+                        : 'select_date'.tr,
                     style: robotoRegular,
                   ),
                   const Icon(Icons.calendar_today_outlined),
@@ -1607,26 +1608,26 @@ class _GiftScreen1State extends State<GiftScreen1> {
     String userName =
         '${Get.find<ProfileController>().userInfoModel?.fName ?? ''} ${Get.find<ProfileController>().userInfoModel?.lName ?? ''}'
             .trim();
-    if (userName.isEmpty) userName = 'User Name';
+    if (userName.isEmpty) userName = 'user_name'.tr;
 
     String recipientName = _buyForSelf
         ? userName
         : '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}'
             .trim();
-    if (recipientName.isEmpty) recipientName = 'Recipient Name';
+    if (recipientName.isEmpty) recipientName = 'recipient_name'.tr;
 
     String recipientEmail = _buyForSelf
         ? (Get.find<ProfileController>().userInfoModel?.email ?? '')
         : _emailController.text.trim();
 
-    String sharingMethod = _buyForSelf ? 'Digital Send' : 'Email Delivery';
+    String sharingMethod = _buyForSelf ? 'digital_send'.tr : 'email_delivery'.tr;
     String timing = _buyForSelf
-        ? 'Instant'
+        ? 'instant'.tr
         : (_selectedTimingIndex == 1
             ? (_selectedDate != null
                 ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
-                : 'Scheduled')
-            : 'Now');
+                : 'scheduled'.tr)
+            : 'now'.tr);
 
     String? designImage;
     if (giftController.selectedOccasion != null &&
@@ -1642,7 +1643,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Order review',
+        Text('order_review'.tr,
             style: robotoBold.copyWith(
                 fontSize: Dimensions.fontSizeExtraLarge,
                 color: Theme.of(context).primaryColor)),
@@ -1650,7 +1651,7 @@ class _GiftScreen1State extends State<GiftScreen1> {
         const Divider(height: 1),
         const SizedBox(height: Dimensions.paddingSizeDefault),
 
-        Text('Gift Card Design', style: robotoBold),
+        Text('gift_card_design'.tr, style: robotoBold),
         const SizedBox(height: Dimensions.paddingSizeSmall),
 
         // Gift Card Design Preview
@@ -1689,18 +1690,18 @@ class _GiftScreen1State extends State<GiftScreen1> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Order Info', style: robotoBold),
+              Text('order_info'.tr, style: robotoBold),
               const SizedBox(height: Dimensions.paddingSizeExtraSmall),
               const Divider(height: 1),
               const SizedBox(height: Dimensions.paddingSizeSmall),
-              _buildInfoRow('Merchant', storeName),
-              _buildInfoRow('Recipient Name', recipientName),
+              _buildInfoRow('merchant'.tr, storeName),
+              _buildInfoRow('recipient_name'.tr, recipientName),
               if (!_buyForSelf && _messageController.text.isNotEmpty)
-                _buildInfoRow('Recipient Message', _messageController.text),
-              _buildInfoRow('Send by', userName),
-              _buildInfoRow('Delivery Method',
+                _buildInfoRow('recipient_message'.tr, _messageController.text),
+              _buildInfoRow('send_by'.tr, userName),
+              _buildInfoRow('delivery_method'.tr,
                   '$sharingMethod${recipientEmail.isNotEmpty ? ': $recipientEmail' : ''}'),
-              _buildInfoRow('Delivery Time', timing),
+              _buildInfoRow('delivery_time'.tr, timing),
             ],
           ),
         ),
@@ -1718,16 +1719,16 @@ class _GiftScreen1State extends State<GiftScreen1> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Payment Breakdown', style: robotoBold),
+              Text('payment_breakdown'.tr, style: robotoBold),
               const SizedBox(height: Dimensions.paddingSizeExtraSmall),
               const Divider(height: 1),
               const SizedBox(height: Dimensions.paddingSizeSmall),
-              _buildInfoRow('Card Value:', _formatPrice(totalToPay),
+              _buildInfoRow('card_value'.tr, _formatPrice(totalToPay),
                   isBoldValue: true),
               if (bonus > 0)
-                _buildInfoRow('Bonus Value:', _formatPrice(bonus),
+                _buildInfoRow('bonus_value'.tr, _formatPrice(bonus),
                     isBoldValue: true, valueColor: Colors.purple),
-              _buildInfoRow('Total to pay:', _formatPrice(cardTotalValue),
+              _buildInfoRow('total_to_pay'.tr, _formatPrice(cardTotalValue),
                   isBoldValue: true),
             ],
           ),

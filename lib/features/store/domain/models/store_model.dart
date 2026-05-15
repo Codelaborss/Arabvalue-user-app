@@ -91,6 +91,8 @@ class Store {
   String? bonusConfiguration; // Gift voucher bonus configuration
   int? status;
   List<Availability>? availability;
+  double? comission;
+  String? commissionPaidBy;
 
   Store({
     this.id,
@@ -148,6 +150,8 @@ class Store {
     this.bonusConfiguration,
     this.status,
     this.availability,
+    this.comission,
+    this.commissionPaidBy,
   });
 
   Store.fromJson(Map<String, dynamic> json) {
@@ -240,6 +244,8 @@ class Store {
         availability!.add(Availability.fromJson(v));
       });
     }
+    comission = json['comission']?.toDouble();
+    commissionPaidBy = json['commission_paid_by'];
   }
 
   Map<String, dynamic> toJson() {
@@ -306,6 +312,8 @@ class Store {
     if (availability != null) {
       data['availability'] = availability!.map((v) => v.toJson()).toList();
     }
+    data['comission'] = comission;
+    data['commission_paid_by'] = commissionPaidBy;
     return data;
   }
 }

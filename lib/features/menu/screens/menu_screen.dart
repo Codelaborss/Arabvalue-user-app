@@ -193,8 +193,14 @@ class _MenuScreenState extends State<MenuScreen> {
                       PortionWidget(
                           icon: '',
                           iconData: Icons.card_giftcard,
-                          title: 'Gift',
+                          title: 'gift'.tr,
                           route: RouteHelper.getGiftRoute()),
+                      PortionWidget(
+                        icon: '',
+                        iconData: Icons.notifications,
+                        title: 'notification'.tr,
+                        route: RouteHelper.getNotificationRoute(),
+                      ),
                       PortionWidget(
                           icon: Images.languageIcon,
                           title: 'language'.tr,

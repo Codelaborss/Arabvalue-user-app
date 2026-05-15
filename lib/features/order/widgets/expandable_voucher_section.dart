@@ -80,7 +80,7 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
                   Row(
                     children: [
                       Text(
-                        'View',
+                        'view'.tr,
                         style: robotoRegular.copyWith(
                           fontSize: Dimensions.fontSizeSmall,
                           color: Theme.of(context).primaryColor,
@@ -140,7 +140,7 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
 
     // Fallback: static voucherProducts list
     if (widget.voucherProducts == null || widget.voucherProducts!.isEmpty) {
-      return const Text('No products available');
+      return Text('no_products_available'.tr);
     }
 
     return Column(
@@ -215,7 +215,7 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
         const SizedBox(height: Dimensions.paddingSizeExtraSmall),
         if (widget.item?.description != null) ...[
           Text(
-            'Description',
+            'description'.tr,
             style: robotoBold.copyWith(
               fontSize: Dimensions.fontSizeSmall,
               color: Colors.black87,
@@ -329,7 +329,7 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              'Free',
+                              'free'.tr,
                               style: robotoMedium.copyWith(
                                 fontSize: 10,
                                 color: Colors.white,
@@ -401,7 +401,7 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
                 const Divider(height: 1, color: Color(0xFFEEEEEE)),
                 const SizedBox(height: 6),
                 Text(
-                  'Add-ons',
+                  'add_ons'.tr,
                   style: robotoMedium.copyWith(
                     fontSize: Dimensions.fontSizeSmall,
                     color: Colors.grey[600],
@@ -460,7 +460,7 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
 
   Widget _buildBranches() {
     if (widget.branches == null || widget.branches!.isEmpty) {
-      return const Text('No branches available');
+      return Text('no_branches_available'.tr);
     }
     return Column(
       children: widget.branches!.map((branch) {
@@ -519,7 +519,7 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
                       return Text(
                         available
                             ? (branch.name ?? '')
-                            : '${branch.name ?? ''} (Not Available)${activeAt != null ? ' - $activeAt' : ''}',
+                            : '${branch.name ?? ''}${'not_available_parentheses'.tr}${activeAt != null ? ' - $activeAt' : ''}',
                         style: robotoMedium.copyWith(
                           fontSize: Dimensions.fontSizeDefault,
                           color: available
@@ -550,7 +550,7 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
 
   Widget _buildUsageTerms() {
     if (widget.voucherSettings == null) {
-      return const Text('No usage terms available');
+      return Text('no_usage_terms_available'.tr);
     }
     VoucherSettings settings = widget.voucherSettings!;
     return Column(
@@ -563,13 +563,13 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
             (settings.validityPeriod!.end != null &&
                 settings.validityPeriod!.end!.isNotEmpty &&
                 settings.validityPeriod!.end != 'null'))
-          _buildSettingItem('Validity Period',
+          _buildSettingItem('validity_period'.tr,
               '${settings.validityPeriod!.start} to ${settings.validityPeriod!.end}'),
 
         if (settings.ageRestriction != null &&
             settings.ageRestriction!.isNotEmpty)
           _buildSettingItem(
-              'Age Restriction',
+              'age_restriction'.tr,
               settings.ageRestriction!
                   .where((e) => e.text != null || e.value != null)
                   .map((e) => e.text ?? '${e.value}+ Only')
@@ -580,7 +580,7 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
             (settings.groupSizeRequirement != null &&
                 settings.groupSizeRequirement! > 0))
           _buildSettingItem(
-              'Group Size',
+              'group_size'.tr,
               (settings.groupSizeText != null &&
                       settings.groupSizeText!.isNotEmpty)
                   ? settings.groupSizeText!
@@ -590,14 +590,14 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
             (settings.usageLimitPerUser!.value != null &&
                 settings.usageLimitPerUser!.value!.isNotEmpty &&
                 settings.usageLimitPerUser!.value != 'null'))
-          _buildSettingItem('Usage Limit',
+          _buildSettingItem('usage_limit'.tr,
               '${settings.usageLimitPerUser!.value}${settings.usageLimitPerUser!.period != null && settings.usageLimitPerUser!.period!.isNotEmpty && settings.usageLimitPerUser!.period != 'null' ? ' ${settings.usageLimitPerUser!.period}' : ' times'}'),
 
         if (settings.usageLimitPerStore != null &&
             (settings.usageLimitPerStore!.value != null &&
                 settings.usageLimitPerStore!.value!.isNotEmpty &&
                 settings.usageLimitPerStore!.value != 'null'))
-          _buildSettingItem('Store Usage Limit',
+          _buildSettingItem('store_usage_limit'.tr,
               '${settings.usageLimitPerStore!.value}${settings.usageLimitPerStore!.period != null && settings.usageLimitPerStore!.period!.isNotEmpty && settings.usageLimitPerStore!.period != 'null' ? ' ${settings.usageLimitPerStore!.period}' : ' times'}'),
 
         if ((settings.offerValidityText != null &&
@@ -606,7 +606,7 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
             (settings.offerValidityAfterPurchase != null &&
                 settings.offerValidityAfterPurchase! > 0))
           _buildSettingItem(
-              'Validity after purchase',
+              'validity_after_purchase'.tr,
               (settings.offerValidityText != null &&
                       settings.offerValidityText!.isNotEmpty &&
                       settings.offerValidityText != 'null')
@@ -620,13 +620,13 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
                   (e.nameEn != null && e.nameEn!.isNotEmpty) ||
                   (e.nameAr != null && e.nameAr!.isNotEmpty))
               .map((e) => _buildSettingItem(
-                  null, e.nameEn ?? e.nameAr ?? 'General Restriction')),
+                  null, e.nameEn ?? e.nameAr ?? 'general_restriction'.tr)),
 
         // Holidays and Blackout dates
         if (settings.holidaysOccasions != null &&
             settings.holidaysOccasions!.isNotEmpty)
           _buildSettingItem(
-              'Holidays',
+              'holidays'.tr,
               settings.holidaysOccasions!
                   .where((e) => e.nameEn != null || e.nameAr != null)
                   .map((e) => (e.nameEn ?? e.nameAr)!)
@@ -638,7 +638,7 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
         if (settings.customBlackoutDates != null &&
             settings.customBlackoutDates!.isNotEmpty)
           _buildSettingItem(
-              'Blackout Dates',
+              'blackout_dates'.tr,
               settings.customBlackoutDates!
                   .where((e) =>
                       (e.date != null && e.date!.isNotEmpty) ||
@@ -669,7 +669,7 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
 
     if (activeDays.isEmpty) return const SizedBox();
 
-    return _buildSettingItem('Available Days', activeDays.join(', '));
+    return _buildSettingItem('available_days'.tr, activeDays.join(', '));
   }
 
   Widget _buildSettingItem(String? title, String value) {
@@ -702,7 +702,7 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
 
   Widget _buildHowToUse() {
     if (widget.howItWorks == null || widget.howItWorks!.isEmpty) {
-      return const Text('No usage terms available');
+      return Text('no_usage_terms_available'.tr);
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -775,7 +775,7 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
         ],
         if (widget.item?.description != null) ...[
           Text(
-            'Description',
+            'description'.tr,
             style: robotoBold.copyWith(
               fontSize: Dimensions.fontSizeSmall,
               color: Colors.black87,
@@ -794,7 +794,7 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Card Value',
+              Text('card_value'.tr,
                   style: robotoMedium.copyWith(
                       fontSize: Dimensions.fontSizeSmall)),
               Text(
@@ -808,7 +808,7 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Bonus',
+              Text('bonus'.tr,
                   style: robotoMedium.copyWith(
                       fontSize: Dimensions.fontSizeSmall)),
               Text(
@@ -823,7 +823,7 @@ class _ExpandableVoucherSectionState extends State<ExpandableVoucherSection> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Paid Amount',
+              Text('paid_amount'.tr,
                   style: robotoBold.copyWith(
                       fontSize: Dimensions.fontSizeDefault)),
               Text(

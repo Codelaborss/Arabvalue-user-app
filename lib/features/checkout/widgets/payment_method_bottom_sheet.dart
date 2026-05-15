@@ -116,7 +116,7 @@ class _PaymentMethodBottomSheetState extends State<PaymentMethodBottomSheet> {
                     ? Align(
                         alignment: Alignment.topRight,
                         child: InkWell(
-                          onTap: () => Get.back(),
+                          onTap: () => Navigator.pop(context),
                           child: Container(
                             height: 30,
                             width: 30,
@@ -434,7 +434,7 @@ class _PaymentMethodBottomSheetState extends State<PaymentMethodBottomSheet> {
                       horizontal: Dimensions.paddingSizeLarge),
                   child: CustomButton(
                     buttonText: 'select'.tr,
-                    onPressed: () => Get.back(),
+                    onPressed: () => Navigator.pop(context),
                   ),
                 ),
               ]),

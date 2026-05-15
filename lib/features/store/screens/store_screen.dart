@@ -55,11 +55,11 @@ class StoreScreen extends StatefulWidget {
 class _StoreScreenState extends State<StoreScreen> {
   final ScrollController scrollController = ScrollController();
   final List<String> _voucherTypes = [
-    'All',
-    'Delivery',
-    'In-Store',
-    'Flat',
-    'Gift Cards'
+    'all',
+    'delivery',
+    'in_store',
+    'flat',
+    'gift_cards'
   ];
   final TextEditingController _searchController = TextEditingController();
 
@@ -121,7 +121,7 @@ class _StoreScreenState extends State<StoreScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: CustomAppBar(title: 'Partners'.tr, showProfile: true),
+        appBar: CustomAppBar(title: 'partners'.tr, showProfile: true),
         endDrawer: const MenuDrawer(),
         endDrawerEnableOpenDragGesture: false,
         backgroundColor: Theme.of(context).colorScheme.surface,
@@ -454,24 +454,19 @@ class _StoreScreenState extends State<StoreScreen> {
                                                         const SizedBox(
                                                             width: 4),
                                                         Text(
-                                                          Get.find<
-                                                                      StoreController>()
+                                                          Get.find<StoreController>()
                                                                   .isOpenNow(
                                                                       store!)
                                                               ? 'open_now'.tr
-                                                              : 'closed_now'
-                                                                  .tr,
-                                                          style: robotoMedium
-                                                              .copyWith(
-                                                                  fontSize: 11,
-                                                                  color: Get.find<
-                                                                              StoreController>()
-                                                                          .isOpenNow(
-                                                                              store!)
-                                                                      ? Colors
-                                                                          .green
-                                                                      : Colors
-                                                                          .red),
+                                                              : 'closed_now'.tr,
+                                                          style: robotoMedium.copyWith(
+                                                              fontSize: 11,
+                                                              color: Get.find<
+                                                                          StoreController>()
+                                                                      .isOpenNow(
+                                                                          store!)
+                                                                  ? Colors.green
+                                                                  : Colors.red),
                                                         ),
                                                       ],
                                                     ),
@@ -489,7 +484,7 @@ class _StoreScreenState extends State<StoreScreen> {
                                                   context,
                                                   Icons.timer_outlined,
                                                   store?.deliveryTime ??
-                                                      '30-40 min'),
+                                                      '30-40 min'.tr),
                                               const SizedBox(
                                                   width: Dimensions
                                                       .paddingSizeExtraSmall),

@@ -1,3 +1,4 @@
+import 'package:sixam_mart/features/language/controllers/language_controller.dart';
 import 'package:sixam_mart/common/widgets/custom_asset_image_widget.dart';
 import 'package:sixam_mart/features/splash/controllers/splash_controller.dart';
 import 'package:sixam_mart/features/item/domain/models/item_model.dart';
@@ -21,6 +22,7 @@ class OrderItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isLtr = Get.find<LocalizationController>().isLtr;
     /*for (var addOn in orderDetails.addOns!) {
       addOnText = '$addOnText${(addOnText.isEmpty) ? '' : ',  '}${addOn.name} (${addOn.quantity})';
     }*/
@@ -61,7 +63,7 @@ class OrderItemWidget extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
           child: ClipPath(
-            clipper: TopBottomScallopedClipper(cutoutX: 60),
+            clipper: TopBottomScallopedClipper(cutoutX: 60, isLtr: isLtr),
             child: Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
@@ -117,33 +119,6 @@ class OrderItemWidget extends StatelessWidget {
                                   style: robotoMedium,
                                   textDirection: TextDirection.ltr,
                                 )),
-                                (order.orderStatus == 'delivered' ||
-                                        order.orderStatus == 'confirmed')
-                                    ? InkWell(
-                                        onTap: () => Get.toNamed(
-                                            RouteHelper.getReviewRoute(),
-                                            arguments: RateReviewScreen(
-                                              orderDetailsList: [orderDetails],
-                                              deliveryMan: order.deliveryMan,
-                                              orderID: order.id,
-                                            )),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(
-                                              Dimensions.paddingSizeExtraSmall),
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .primaryColor
-                                                .withValues(alpha: 0.1),
-                                            borderRadius: BorderRadius.circular(
-                                                Dimensions.radiusSmall),
-                                          ),
-                                          child: Icon(Icons.star_rate_rounded,
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                              size: 18),
-                                        ),
-                                      )
-                                    : const SizedBox(),
                                 ((Get.find<SplashController>()
                                                 .configModel!
                                                 .moduleConfig!
@@ -248,6 +223,7 @@ class OrderItemWidget extends StatelessWidget {
                   ],
                   stops: const [0.7, 1.0],
                   cutoutX: 60,
+                  isLtr: isLtr,
                 ),
               ),
             ),
@@ -261,17 +237,20 @@ class OrderItemWidget extends StatelessWidget {
 class TopBottomScallopedClipper extends CustomClipper<Path> {
   final double cutoutX;
   final double radius;
+  final bool isLtr;
 
-  TopBottomScallopedClipper({required this.cutoutX, this.radius = 10});
+  TopBottomScallopedClipper(
+      {required this.cutoutX, this.radius = 10, this.isLtr = true});
 
   @override
   Path getClip(Size size) {
+    double actualCutoutX = isLtr ? cutoutX : size.width - cutoutX;
     Path path = Path();
     path.moveTo(Dimensions.radiusLarge, 0);
 
     // Top line with cutout
-    path.lineTo(cutoutX - radius, 0);
-    path.arcToPoint(Offset(cutoutX + radius, 0),
+    path.lineTo(actualCutoutX - radius, 0);
+    path.arcToPoint(Offset(actualCutoutX + radius, 0),
         radius: Radius.circular(radius), clockwise: false);
     path.lineTo(size.width - Dimensions.radiusLarge, 0);
 
@@ -287,8 +266,8 @@ class TopBottomScallopedClipper extends CustomClipper<Path> {
         radius: const Radius.circular(Dimensions.radiusLarge));
 
     // Bottom line with cutout
-    path.lineTo(cutoutX + radius, size.height);
-    path.arcToPoint(Offset(cutoutX - radius, size.height),
+    path.lineTo(actualCutoutX + radius, size.height);
+    path.arcToPoint(Offset(actualCutoutX - radius, size.height),
         radius: Radius.circular(radius), clockwise: false);
     path.lineTo(Dimensions.radiusLarge, size.height);
 
@@ -316,6 +295,7 @@ class TopBottomCurvedBorderPainter extends CustomPainter {
   final double cutoutX;
   final double radius;
   final double strokeWidth;
+  final bool isLtr;
 
   TopBottomCurvedBorderPainter({
     required this.colors,
@@ -323,10 +303,12 @@ class TopBottomCurvedBorderPainter extends CustomPainter {
     required this.cutoutX,
     this.radius = 10,
     this.strokeWidth = 5.0,
+    this.isLtr = true,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
+    double actualCutoutX = isLtr ? cutoutX : size.width - cutoutX;
     double halfStroke = strokeWidth / 2;
     Paint paint = Paint()
       ..shader = LinearGradient(
@@ -341,8 +323,8 @@ class TopBottomCurvedBorderPainter extends CustomPainter {
     Path path = Path();
     path.moveTo(Dimensions.radiusLarge, halfStroke);
 
-    path.lineTo(cutoutX - radius, halfStroke);
-    path.arcToPoint(Offset(cutoutX + radius, halfStroke),
+    path.lineTo(actualCutoutX - radius, halfStroke);
+    path.arcToPoint(Offset(actualCutoutX + radius, halfStroke),
         radius: const Radius.circular(10.0), clockwise: false);
     path.lineTo(size.width - Dimensions.radiusLarge, halfStroke);
 
@@ -353,8 +335,8 @@ class TopBottomCurvedBorderPainter extends CustomPainter {
         Offset(size.width - Dimensions.radiusLarge, size.height - halfStroke),
         radius: const Radius.circular(Dimensions.radiusLarge - 0));
 
-    path.lineTo(cutoutX + radius, size.height - halfStroke);
-    path.arcToPoint(Offset(cutoutX - radius, size.height - halfStroke),
+    path.lineTo(actualCutoutX + radius, size.height - halfStroke);
+    path.arcToPoint(Offset(actualCutoutX - radius, size.height - halfStroke),
         radius: const Radius.circular(10.0), clockwise: false);
     path.lineTo(Dimensions.radiusLarge, size.height - halfStroke);
 

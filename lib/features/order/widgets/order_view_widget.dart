@@ -1,6 +1,7 @@
 import 'package:sixam_mart/common/widgets/custom_ink_well.dart';
 import 'package:sixam_mart/features/order/controllers/order_controller.dart';
 import 'package:sixam_mart/features/order/domain/models/order_model.dart';
+import 'package:sixam_mart/features/language/controllers/language_controller.dart';
 import 'package:sixam_mart/features/item/domain/models/item_model.dart'
     as item_model;
 import 'package:sixam_mart/features/order/widgets/order_shimmer_widget.dart';
@@ -277,16 +278,18 @@ class OrderViewWidget extends StatelessWidget {
               padding:
                   const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
               child: ClipPath(
-                clipper: VoucherDividerClipper(cutoutX: cutoutX),
+                clipper: VoucherDividerClipper(
+                  cutoutX: cutoutX,
+                  isLtr: Get.find<LocalizationController>().isLtr,
+                ),
                 child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                  ),
+                  decoration: const BoxDecoration(color: Colors.white),
                   child: CustomPaint(
                     painter: VoucherDividerBorderPainter(
                       colors: voucherColors,
                       stops: const [0.7, 1.0],
                       cutoutX: cutoutX,
+                      isLtr: Get.find<LocalizationController>().isLtr,
                     ),
                     child: CustomInkWell(
                       onTap: () {
@@ -330,7 +333,9 @@ class OrderViewWidget extends StatelessWidget {
 
                               // Vertical Divider
                               SizedBox(
-                                height: 120,
+                                height: ResponsiveHelper.isDesktop(context)
+                                    ? 150
+                                    : 120,
                                 width: 1,
                                 child: CustomPaint(
                                   painter: VerticalDashedLinePainter(
@@ -413,7 +418,7 @@ class OrderViewWidget extends StatelessWidget {
                                               Dimensions.radiusDefault),
                                         ),
                                         child: Text(
-                                          '${'save'.tr}\n${voucherItem!.discountType == 'amount' ? PriceConverter.convertPrice(voucherItem.discount) : '${voucherItem.discount}%'}',
+                                          '${'save'.tr}\n${(voucherItem!.discountType == 'amount' || voucherItem!.discountType == 'fixed') ? PriceConverter.convertPrice(voucherItem.discount) : '${voucherItem.discount}%'}',
                                           style: robotoBold.copyWith(
                                               color: Colors.white,
                                               fontSize: 12,
@@ -475,9 +480,10 @@ class OrderViewWidget extends StatelessWidget {
                             ],
                           ),
 
-                          // Voucher Type Badge (absolute far left vertical ribbon)
-                          Positioned(
-                            left: 0,
+                          // Voucher Type Badge (absolute far start vertical ribbon)
+                          Positioned.directional(
+                            textDirection: Directionality.of(context),
+                            start: 0,
                             top: 15,
                             bottom: 15,
                             child: Container(
@@ -488,8 +494,9 @@ class OrderViewWidget extends StatelessWidget {
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                 ),
-                                borderRadius: const BorderRadius.horizontal(
-                                    right: Radius.circular(8)),
+                                borderRadius:
+                                    const BorderRadiusDirectional.horizontal(
+                                        end: Radius.circular(8)),
                               ),
                               child: Center(
                                 child: RotatedBox(

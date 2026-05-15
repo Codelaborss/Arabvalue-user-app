@@ -101,7 +101,7 @@ class VoucherOrderCardWidget extends StatelessWidget {
             ? bundleType.toUpperCase()
             : (item.voucherType ?? 'Voucher').toUpperCase();
 
-    double cutoutY = (ResponsiveHelper.isDesktop(context) ? 250 : 165) + 21;
+    double cutoutY = (ResponsiveHelper.isDesktop(context) ? 300 : 165) + 21;
 
     return Padding(
       padding: const EdgeInsets.only(
@@ -111,7 +111,7 @@ class VoucherOrderCardWidget extends StatelessWidget {
       ),
       child: Center(
         child: SizedBox(
-          width: ResponsiveHelper.isDesktop(context) ? 550 : double.infinity,
+          width: ResponsiveHelper.isDesktop(context) ? 600 : double.infinity,
           child: ClipPath(
             clipper: ScallopedEdgeClipper(cutoutY: cutoutY),
             child: Container(
@@ -141,17 +141,18 @@ class VoucherOrderCardWidget extends StatelessWidget {
                                       orderDetail.giftDetails!.image!)
                                   : item.imageFullUrl ?? '',
                               height: ResponsiveHelper.isDesktop(context)
-                                  ? 250
+                                  ? 300
                                   : 165,
                               width: double.infinity,
                               fit: BoxFit.cover,
                             ),
                           ),
                         ),
-                        // Voucher Type Badge (Top-Left)
-                        Positioned(
+                        // Voucher Type Badge (Top-Start — follows LTR/RTL)
+                        Positioned.directional(
+                          textDirection: Directionality.of(context),
                           top: 0,
-                          left: 12,
+                          start: 12,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 15, vertical: 5),
@@ -237,50 +238,6 @@ class VoucherOrderCardWidget extends StatelessWidget {
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
-                                          (order?.orderStatus == 'delivered' ||
-                                                  order?.orderStatus ==
-                                                      'confirmed')
-                                              ? Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 5),
-                                                  child: InkWell(
-                                                    onTap: () => Get.toNamed(
-                                                        RouteHelper
-                                                            .getReviewRoute(),
-                                                        arguments:
-                                                            RateReviewScreen(
-                                                          orderDetailsList: [
-                                                            orderDetail
-                                                          ],
-                                                          deliveryMan: order
-                                                              ?.deliveryMan,
-                                                          orderID: order?.id,
-                                                        )),
-                                                    child: Container(
-                                                      padding: const EdgeInsets
-                                                          .all(Dimensions
-                                                              .paddingSizeExtraSmall),
-                                                      decoration: BoxDecoration(
-                                                        color: Theme.of(context)
-                                                            .primaryColor
-                                                            .withValues(
-                                                                alpha: 0.1),
-                                                        borderRadius: BorderRadius
-                                                            .circular(Dimensions
-                                                                .radiusSmall),
-                                                      ),
-                                                      child: Icon(
-                                                          Icons
-                                                              .star_rate_rounded,
-                                                          color:
-                                                              Theme.of(context)
-                                                                  .primaryColor,
-                                                          size: 20),
-                                                    ),
-                                                  ),
-                                                )
-                                              : const SizedBox(),
                                         ],
                                       )
                                     : // Other vouchers: Show voucher name
@@ -295,37 +252,6 @@ class VoucherOrderCardWidget extends StatelessWidget {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                               ),
-                              (order?.orderStatus == 'delivered' ||
-                                          order?.orderStatus == 'confirmed') &&
-                                      !isGift
-                                  ? Padding(
-                                      padding: const EdgeInsets.only(left: 5),
-                                      child: InkWell(
-                                        onTap: () => Get.toNamed(
-                                            RouteHelper.getReviewRoute(),
-                                            arguments: RateReviewScreen(
-                                              orderDetailsList: [orderDetail],
-                                              deliveryMan: order?.deliveryMan,
-                                              orderID: order?.id,
-                                            )),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(
-                                              Dimensions.paddingSizeExtraSmall),
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .primaryColor
-                                                .withValues(alpha: 0.1),
-                                            borderRadius: BorderRadius.circular(
-                                                Dimensions.radiusSmall),
-                                          ),
-                                          child: Icon(Icons.star_rate_rounded,
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                              size: 20),
-                                        ),
-                                      ),
-                                    )
-                                  : const SizedBox(),
                               const SizedBox(width: 10),
                               if (isGift)
                                 // Gift voucher: "Voucher Value" badge
@@ -342,7 +268,7 @@ class VoucherOrderCardWidget extends StatelessWidget {
                                   child: Column(
                                     children: [
                                       Text(
-                                        'Voucher Value',
+                                        'voucher_value'.tr,
                                         style: robotoMedium.copyWith(
                                             color: Colors.white, fontSize: 10),
                                       ),
@@ -370,7 +296,7 @@ class VoucherOrderCardWidget extends StatelessWidget {
                                   child: Column(
                                     children: [
                                       Text(
-                                        'Gift Value',
+                                        'gift_value'.tr,
                                         style: robotoMedium.copyWith(
                                             color: Colors.white, fontSize: 10),
                                       ),
@@ -398,12 +324,14 @@ class VoucherOrderCardWidget extends StatelessWidget {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
-                                        isCashBack ? 'CASHBACK' : 'SAVE',
+                                        isCashBack
+                                            ? 'cashback_uppercase'.tr
+                                            : 'save_uppercase'.tr,
                                         style: robotoBold.copyWith(
                                             color: Colors.white, fontSize: 10),
                                       ),
                                       Text(
-                                        '\$${discount.toStringAsFixed(0)}',
+                                        _formatVoucherPrice(discount),
                                         style: robotoBlack.copyWith(
                                             color: Colors.white,
                                             fontSize: 20,
@@ -488,7 +416,8 @@ class VoucherOrderCardWidget extends StatelessWidget {
                               padding: const EdgeInsets.only(
                                   top: Dimensions.paddingSizeSmall),
                               child: Text(
-                                'Expires on ${item.validUntil}',
+                                'expires_on_with_date'
+                                    .trParams({'date': item.validUntil ?? ''}),
                                 style: robotoRegular.copyWith(
                                   fontSize: Dimensions.fontSizeSmall,
                                   color: Colors.grey[600],
@@ -531,17 +460,18 @@ class VoucherOrderCardWidget extends StatelessWidget {
                               height: 180,
                               child: Stack(
                                 children: [
-                                  // Top Info (Top-Left): Expiry Date if present, otherwise Bundle ID
-                                  Positioned(
+                                  // Top Info (Top-Start): Expiry Date if present, otherwise Bundle ID
+                                  Positioned.directional(
+                                    textDirection: Directionality.of(context),
                                     top: 0,
-                                    left: 0,
+                                    start: 0,
                                     child: (item.validUntil != null)
                                         ? Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                'Expires on:',
+                                                'expires_on_colon'.tr,
                                                 style: robotoRegular.copyWith(
                                                   fontSize:
                                                       Dimensions.fontSizeSmall,
@@ -564,7 +494,7 @@ class VoucherOrderCardWidget extends StatelessWidget {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                'Voucher ID:',
+                                                'voucher_id_colon'.tr,
                                                 style: robotoRegular.copyWith(
                                                   fontSize:
                                                       Dimensions.fontSizeSmall,
@@ -613,10 +543,11 @@ class VoucherOrderCardWidget extends StatelessWidget {
                                     ),
                                   ),
 
-                                  // Action Buttons (Bottom-Left - Moved Up)
-                                  Positioned(
+                                  // Action Buttons (Bottom-Start - Moved Up)
+                                  Positioned.directional(
+                                    textDirection: Directionality.of(context),
                                     bottom: 15,
-                                    left: 0,
+                                    start: 0,
                                     child: InkWell(
                                       onTap: () {
                                         Share.share(
@@ -629,7 +560,7 @@ class VoucherOrderCardWidget extends StatelessWidget {
                                               size: 22, color: Colors.black54),
                                           const SizedBox(height: 4),
                                           Text(
-                                            'Share',
+                                            'share_text'.tr,
                                             style: robotoRegular.copyWith(
                                               fontSize: 10,
                                               color: Colors.black54,
@@ -640,11 +571,12 @@ class VoucherOrderCardWidget extends StatelessWidget {
                                     ),
                                   ),
 
-                                  // Voucher Code (Center-Right - Shifted Right)
-                                  Positioned(
+                                  // Voucher Code (Center-End - Shifted Right)
+                                  Positioned.directional(
+                                    textDirection: Directionality.of(context),
                                     top: 0,
                                     bottom: 0,
-                                    right: -1,
+                                    end: -1,
                                     child: Center(
                                       child: Column(
                                         crossAxisAlignment:
@@ -652,7 +584,7 @@ class VoucherOrderCardWidget extends StatelessWidget {
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Text(
-                                            'Voucher Code:',
+                                            'voucher_code_colon'.tr,
                                             style: robotoRegular.copyWith(
                                               fontSize:
                                                   Dimensions.fontSizeSmall,
@@ -739,7 +671,7 @@ class VoucherOrderCardWidget extends StatelessWidget {
                             Row(
                               children: [
                                 Text(
-                                  'To: ',
+                                  'to_colon'.tr,
                                   style: robotoMedium.copyWith(
                                       fontSize: Dimensions.fontSizeDefault,
                                       color: Theme.of(context).primaryColor),
@@ -800,7 +732,7 @@ class VoucherOrderCardWidget extends StatelessWidget {
                               const SizedBox(
                                   width: Dimensions.paddingSizeExtraSmall),
                               Text(
-                                'Powered by yellow pages Palestine',
+                                'powered_by_yellow_pages'.tr,
                                 style: robotoRegular.copyWith(
                                   fontSize: Dimensions.fontSizeSmall,
                                   color: Colors.black.withValues(alpha: 0.6),
@@ -814,7 +746,7 @@ class VoucherOrderCardWidget extends StatelessWidget {
                               const SizedBox(
                                   width: Dimensions.paddingSizeExtraSmall),
                               Text(
-                                'Arabi Value',
+                                'arabi_value_text'.tr,
                                 style: robotoBold.copyWith(
                                   fontSize: Dimensions.fontSizeSmall,
                                   color: Theme.of(context).primaryColor,

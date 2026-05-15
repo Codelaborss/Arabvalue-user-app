@@ -15,8 +15,10 @@ class PriceConverter {
       bool forTaxi = false}) {
     price ??= 0;
     if (discount != null && discountType != null) {
-      if (discountType == 'amount' && !isFoodVariation) {
-        price = price! - discount;
+      if ((discountType == 'amount' || discountType == 'fixed') &&
+          !isFoodVariation &&
+          price > 0) {
+        price = (price! - discount).clamp(0, double.infinity);
       } else if (discountType == 'percent') {
         price = price! - ((discount / 100) * price);
       }
@@ -42,8 +44,8 @@ class PriceConverter {
       TextStyle? textStyle}) {
     price ??= 0;
     if (discount != null && discountType != null) {
-      if (discountType == 'amount') {
-        price = price! - discount;
+      if ((discountType == 'amount' || discountType == 'fixed') && price > 0) {
+        price = (price! - discount).clamp(0, double.infinity);
       } else if (discountType == 'percent') {
         price = price! - ((discount / 100) * price);
       }
@@ -73,8 +75,10 @@ class PriceConverter {
   static double? convertWithDiscount(
       double? price, double? discount, String? discountType,
       {bool isFoodVariation = false}) {
-    if (discountType == 'amount' && !isFoodVariation) {
-      price = price! - discount!;
+    if ((discountType == 'amount' || discountType == 'fixed') &&
+        !isFoodVariation &&
+        (price ?? 0) > 0) {
+      price = ((price ?? 0) - discount!).clamp(0, double.infinity);
     } else if (discountType == 'percent') {
       price = price! - ((discount! / 100) * price);
     }

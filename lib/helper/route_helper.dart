@@ -18,6 +18,7 @@ import 'package:sixam_mart/features/business/screens/subscription_payment_screen
 import 'package:sixam_mart/features/business/screens/subscription_success_or_failed_screen.dart';
 import 'package:sixam_mart/features/chat/domain/models/order_chat_model.dart';
 import 'package:sixam_mart/features/item/screens/item_view_all_screen.dart';
+import 'package:sixam_mart/features/home/screens/web_hot_voucher_view_all_screen.dart';
 import 'package:sixam_mart/features/loyalty/screens/loyalty_screen.dart';
 import 'package:sixam_mart/features/menu/screens/menu_screen.dart';
 import 'package:sixam_mart/features/profile/domain/models/update_user_model.dart';
@@ -175,6 +176,7 @@ class RouteHelper {
   static const String newUserSetupScreen = '/new-user-setup-screen';
   static const String itemViewAllScreen = '/item-view-all-screen';
   static const String pinCodeLogin = '/pin-code-login';
+  static const String hotVoucherVoucherViewAll = '/hot-voucher-view-all';
 
   static String getInitialRoute({bool fromSplash = false}) =>
       '$initial?from-splash=$fromSplash';
@@ -430,6 +432,8 @@ class RouteHelper {
 
   static String getItemViewAllScreen(bool isPopular, bool isSpecial) =>
       '$itemViewAllScreen?page=${isPopular ? 'popular' : 'reviewed'}&special=${isSpecial.toString()}';
+
+  static String getHotVoucherVoucherViewAllRoute() => hotVoucherVoucherViewAll;
 
   static List<GetPage> routes = [
     GetPage(
@@ -1001,6 +1005,9 @@ class RouteHelper {
         page: () => getRoute(ItemViewAllScreen(
             isPopular: Get.parameters['page'] == 'popular',
             isSpecial: Get.parameters['special'] == 'true'))),
+    GetPage(
+        name: hotVoucherVoucherViewAll,
+        page: () => getRoute(const WebHotVoucherViewAllScreen())),
   ];
 
   static Widget getRoute(Widget navigateTo,

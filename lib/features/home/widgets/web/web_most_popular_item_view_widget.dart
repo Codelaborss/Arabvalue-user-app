@@ -69,6 +69,9 @@ class _WebMostPopularItemViewWidgetState
 
     return GetBuilder<ItemController>(builder: (itemController) {
       List<Item>? itemList = itemController.popularItemList;
+      if (itemList != null) {
+        itemList = itemList.where((item) => item.type == 'voucher').toList();
+      }
 
       if (itemList != null && itemList.length > 5 && isFirstTime) {
         showForwardButton = true;
@@ -129,8 +132,9 @@ class _WebMostPopularItemViewWidgetState
                               padding: const EdgeInsets.only(
                                   right: Dimensions.paddingSizeDefault),
                               child: StoreItemWidget(
-                                item: itemList[index],
+                                item: itemList![index],
                                 index: index,
+                                backgroundColor: Colors.white,
                               ),
                             );
                           },

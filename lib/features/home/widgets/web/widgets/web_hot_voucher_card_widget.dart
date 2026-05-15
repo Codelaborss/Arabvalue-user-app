@@ -16,11 +16,13 @@ class WebHotVoucherCardWidget extends StatelessWidget {
   final Item item;
   final bool showLogo;
   final bool showPrice;
+  final double? width;
   const WebHotVoucherCardWidget(
       {super.key,
       required this.item,
       this.showLogo = true,
-      this.showPrice = true});
+      this.showPrice = true,
+      this.width = 280});
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +59,7 @@ class WebHotVoucherCardWidget extends StatelessWidget {
     double cutoutY = imageHeight + 18;
 
     return SizedBox(
-      width: 280, // Adjusted for web
+      width: width,
       child: ClipPath(
         clipper: ScallopedEdgeClipper(cutoutY: cutoutY), // Adjusted for web
         child: Container(
@@ -244,6 +246,7 @@ class WebHotVoucherCardWidget extends StatelessWidget {
                             ),
                           ],
                         ),
+
                         const SizedBox(height: 8),
                         Row(
                           children: [

@@ -99,7 +99,7 @@ class _OrderSuccessfulDialogState extends State<OrderSuccessfulDialog> {
                               ? Align(
                                   alignment: Alignment.topRight,
                                   child: IconButton(
-                                    onPressed: () => Get.back(),
+                                    onPressed: () => Navigator.pop(context),
                                     icon: const Icon(Icons.clear),
                                   ),
                                 )

@@ -81,7 +81,7 @@ class _PinCodeLoginWidgetState extends State<PinCodeLoginWidget> {
         Get.offAllNamed(RouteHelper.getInitialRoute());
       }
     } else {
-      showCustomSnackBar(response.message ?? 'Invalid PIN code',
+      showCustomSnackBar(response.message ?? 'invalid_pin_code'.tr,
           getXSnackBar: true);
     }
   }

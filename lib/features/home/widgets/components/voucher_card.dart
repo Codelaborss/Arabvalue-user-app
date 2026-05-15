@@ -85,12 +85,13 @@ class VoucherCard extends StatelessWidget {
                         ),
                       ),
 
-                      // Voucher Type Badge (Top-Left)
+                      // Voucher Type Badge (Top-Start)
                       if (item.voucherIds != null &&
                           item.voucherIds!.isNotEmpty)
-                        Positioned(
+                        Positioned.directional(
+                          textDirection: Directionality.of(context),
                           top: 0,
-                          left: 12,
+                          start: 12,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
@@ -110,11 +111,12 @@ class VoucherCard extends StatelessWidget {
                           ),
                         ),
 
-                      // Rating (Bottom-Left)
+                      // Rating (Bottom-Start)
                       if ((item.avgRating ?? 0) > 0)
-                        Positioned(
+                        Positioned.directional(
+                          textDirection: Directionality.of(context),
                           bottom: 10,
-                          left: 10,
+                          start: 10,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
@@ -143,10 +145,11 @@ class VoucherCard extends StatelessWidget {
                           ),
                         ),
 
-                      // Favorite (Bottom-Right)
-                      Positioned(
+                      // Favorite (Bottom-End)
+                      Positioned.directional(
+                        textDirection: Directionality.of(context),
                         bottom: 10,
-                        right: 10,
+                        end: 10,
                         child: GetBuilder<FavouriteController>(
                             builder: (favouriteController) {
                           bool isWished = favouriteController.wishItemIdList
@@ -243,7 +246,8 @@ class VoucherCard extends StatelessWidget {
                                         color: Colors.white, fontSize: 8),
                                   ),
                                   Text(
-                                    discountType == 'amount'
+                                    (discountType == 'amount' ||
+                                            discountType == 'fixed')
                                         ? PriceConverter.convertPrice(discount)
                                         : '${discount?.toInt()}%',
                                     style: robotoBold.copyWith(

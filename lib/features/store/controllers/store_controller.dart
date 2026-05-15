@@ -99,7 +99,7 @@ class StoreController extends GetxController implements GetxService {
   CartSuggestItemModel? _cartSuggestItemModel;
   CartSuggestItemModel? get cartSuggestItemModel => _cartSuggestItemModel;
 
-  String _voucherFilter = 'Voucher Type';
+  String _voucherFilter = 'all';
   String get voucherFilter => _voucherFilter;
 
   bool _isSearching = false;
@@ -762,15 +762,17 @@ class StoreController extends GetxController implements GetxService {
     _lowerValue = 0;
     _upperValue = 0;
     _filter = [];
-    _voucherFilter = 'All';
+    _voucherFilter = 'all';
     if (isUpdate) {
       update();
     }
   }
 
-  void setVoucherFilter(String filter) {
+  void setVoucherFilter(String filter, {bool notify = true}) {
     _voucherFilter = filter;
-    update();
+    if (notify) {
+      update();
+    }
   }
 
   List<Item>? getFilteredItems({bool searching = false}) {
@@ -782,11 +784,14 @@ class StoreController extends GetxController implements GetxService {
       bool matchesType = item.type == 'voucher';
       bool matchesFilter = false;
 
-      if (_voucherFilter == 'Voucher Type' || _voucherFilter == 'All') {
+      if (_voucherFilter == 'all') {
         matchesFilter = true;
       } else {
         String filterToSearch = _voucherFilter;
-        if (filterToSearch == 'Gift Cards') filterToSearch = 'Gift';
+        if (filterToSearch == 'gift_cards') filterToSearch = 'Gift';
+        if (filterToSearch == 'in_store') filterToSearch = 'In-Store';
+        if (filterToSearch == 'delivery') filterToSearch = 'Delivery';
+        if (filterToSearch == 'flat') filterToSearch = 'Flat';
 
         matchesFilter = (item.voucherIds != null &&
                 item.voucherIds!.contains(filterToSearch)) ||

@@ -143,6 +143,7 @@ class AppConstants {
       '/api/v1/customer/order/offline-payment';
   static const String offlinePaymentUpdateInfoUri =
       '/api/v1/customer/order/offline-payment-update';
+  static const String cybersourcePaymentUri = '/payment/cybersource/token';
   static const String storeBannersUri = '/api/v1/banners/';
   static const String recommendedItemsUri = '/api/v1/items/recommended?filter=';
   static const String visitAgainStoreUri = '/api/v1/customer/visit-again';

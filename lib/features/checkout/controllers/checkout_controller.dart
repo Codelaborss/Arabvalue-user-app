@@ -31,6 +31,7 @@ import 'package:sixam_mart/helper/responsive_helper.dart';
 import 'package:sixam_mart/helper/route_helper.dart';
 import 'package:sixam_mart/util/app_constants.dart';
 import 'package:sixam_mart/common/widgets/custom_snackbar.dart';
+import 'package:sixam_mart/features/payment/screens/cybersource_payment_screen.dart';
 import 'package:universal_html/html.dart' as html;
 
 class CheckoutController extends GetxController implements GetxService {
@@ -490,6 +491,11 @@ class CheckoutController extends GetxController implements GetxService {
         userID = response.body['user_id'].toString();
       }
 
+      String? paymentID;
+      if (response.body['payment_data'] != null) {
+        paymentID = response.body['payment_data']['payment_id']?.toString();
+      }
+
       if (!isOfflinePay) {
         callback(
             true,
@@ -501,7 +507,8 @@ class CheckoutController extends GetxController implements GetxService {
             fromCart,
             isCashOnDeliveryActive,
             placeOrderBody.contactPersonNumber!,
-            userID);
+            userID,
+            paymentID: paymentID);
       } else {
         Get.find<CartController>().getCartDataOnline();
       }
@@ -591,7 +598,8 @@ class CheckoutController extends GetxController implements GetxService {
       bool fromCart,
       bool isCashOnDeliveryActive,
       String? contactNumber,
-      String userID) async {
+      String userID,
+      {String? paymentID}) async {
     if (isSuccess) {
       // ── Detect voucher type BEFORE cart is cleared ───────────────────────
       bool isVoucher = false;
@@ -639,7 +647,7 @@ class CheckoutController extends GetxController implements GetxService {
       stopLoader(canUpdate: false);
       HomeScreen.loadData(true);
       if (paymentMethodIndex == 2) {
-        if (GetPlatform.isWeb) {
+        if (GetPlatform.isWeb && digitalPaymentName != 'cybersource') {
           // Get.back();
           await Get.find<AuthController>().saveGuestNumber(contactNumber ?? '');
           String? hostname = html.window.location.hostname;
@@ -651,20 +659,25 @@ class CheckoutController extends GetxController implements GetxService {
 
           html.window.open(selectedUrl, "_self");
         } else {
-          Get.offNamed(RouteHelper.getPaymentRoute(
-            orderID,
-            Get.find<ProfileController>().userInfoModel?.id ??
-                (userID.isNotEmpty ? int.parse(userID) : 0),
-            orderType,
-            amount,
-            isCashOnDeliveryActive,
-            digitalPaymentName,
-            guestId: userID.isNotEmpty ? userID : AuthHelper.getGuestId(),
-            contactNumber: contactNumber,
-            isVoucher: isVoucher,
-            isFlat: isFlat,
-            discountAmount: discountAmount,
-          ));
+          if (digitalPaymentName == 'cybersource') {
+            Get.off(() => CybersourcePaymentScreen(
+                orderID: orderID, amount: amount, paymentID: paymentID ?? ''));
+          } else {
+            Get.offNamed(RouteHelper.getPaymentRoute(
+              orderID,
+              Get.find<ProfileController>().userInfoModel?.id ??
+                  (userID.isNotEmpty ? int.parse(userID) : 0),
+              orderType,
+              amount,
+              isCashOnDeliveryActive,
+              digitalPaymentName,
+              guestId: userID.isNotEmpty ? userID : AuthHelper.getGuestId(),
+              contactNumber: contactNumber,
+              isVoucher: isVoucher,
+              isFlat: isFlat,
+              discountAmount: discountAmount,
+            ));
+          }
         }
       } else {
         double total = ((amount / 100) *

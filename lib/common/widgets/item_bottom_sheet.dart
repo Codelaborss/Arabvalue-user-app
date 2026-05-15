@@ -107,41 +107,43 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
     itemController
         .getItemDetails(itemId: widget.itemId, cart: widget.cart)
         .then((_) {
-      setState(() {
-        _newVariation = splashController
-                .getModuleConfig(itemController.item?.moduleType)
-                .newVariation ??
-            false;
+      if (mounted) {
+        setState(() {
+          _newVariation = splashController
+                  .getModuleConfig(itemController.item?.moduleType)
+                  .newVariation ??
+              false;
 
-        // Auto-select defaults for gift vouchers
-        if (itemController.item != null &&
-            itemController.item!.bundleType == 'gift') {
-          // 1. Pre-select first gift amount if fixed options exist
-          if (itemController.item!.fixedAmountOptions != null &&
-              itemController.item!.fixedAmountOptions!.isNotEmpty) {
-            double? firstAmount = double.tryParse(
-                itemController.item!.fixedAmountOptions![0].toString());
-            if (firstAmount != null) {
-              _selectedGiftAmount = firstAmount;
-              _amountController.text = firstAmount.toStringAsFixed(0);
-              _calculateGiftVoucherValues(
-                  firstAmount.toString(), itemController.item);
+          // Auto-select defaults for gift vouchers
+          if (itemController.item != null &&
+              itemController.item!.bundleType == 'gift') {
+            // 1. Pre-select first gift amount if fixed options exist
+            if (itemController.item!.fixedAmountOptions != null &&
+                itemController.item!.fixedAmountOptions!.isNotEmpty) {
+              double? firstAmount = double.tryParse(
+                  itemController.item!.fixedAmountOptions![0].toString());
+              if (firstAmount != null) {
+                _selectedGiftAmount = firstAmount;
+                _amountController.text = firstAmount.toStringAsFixed(0);
+                _calculateGiftVoucherValues(
+                    firstAmount.toString(), itemController.item);
+              }
+            }
+
+            // 2. Pre-select first occasion and designttttt
+            if (itemController.item!.giftOccasions != null &&
+                itemController.item!.giftOccasions!.isNotEmpty) {
+              _selectedOccasion = itemController.item!.giftOccasions![0];
+              _selectedDesignIndex = 0;
             }
           }
 
-          // 2. Pre-select first occasion and design
-          if (itemController.item!.giftOccasions != null &&
-              itemController.item!.giftOccasions!.isNotEmpty) {
-            _selectedOccasion = itemController.item!.giftOccasions![0];
-            _selectedDesignIndex = 0;
-          }
-        }
-
-        print(
-            '====> _newVariation set to: $_newVariation for item ${itemController.item?.name}');
-        print(
-            '====> foodVariations count: ${itemController.item?.foodVariations?.length ?? 0}');
-      });
+          print(
+              '====> _newVariation set to: $_newVariation for item ${itemController.item?.name}');
+          print(
+              '====> foodVariations count: ${itemController.item?.foodVariations?.length ?? 0}');
+        });
+      }
     });
   }
 
@@ -177,6 +179,16 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
     }
 
     double discountAmount = amount * (bonusPerc / 100);
+
+    // Apply Customer Commission Logic for Flat Vouchers
+    if (item?.store?.commissionPaidBy == 'customer' &&
+        item?.store?.comission != null) {
+      double afterDiscountAmount = amount - discountAmount;
+      double commissionAmount =
+          afterDiscountAmount * (item!.store!.comission! / 100);
+      bonusPerc = ((discountAmount - commissionAmount) / amount) * 100;
+      discountAmount = amount * (bonusPerc / 100);
+    }
 
     setState(() {
       _flatVoucherBonus = bonusPerc;
@@ -252,10 +264,12 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
       }
     }
 
+    double discountAmount = amount * (bonusPerc / 100);
+
     setState(() {
       _selectedGiftAmount = amount;
       _giftBonusPercentage = bonusPerc;
-      _giftBonusAmount = amount * (bonusPerc / 100);
+      _giftBonusAmount = discountAmount;
     });
   }
 
@@ -318,14 +332,14 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Top Up Value',
+          Text('top_up_value'.tr,
               style:
                   robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge)),
           const SizedBox(height: Dimensions.paddingSizeExtraSmall),
           const Divider(height: 1),
           const SizedBox(height: Dimensions.paddingSizeSmall),
           if (hasFixedOptions) ...[
-            Text('Select Amount', style: robotoMedium),
+            Text('select_amount'.tr, style: robotoMedium),
             const SizedBox(height: Dimensions.paddingSizeSmall),
             Wrap(
               spacing: Dimensions.paddingSizeSmall,
@@ -363,7 +377,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
             const SizedBox(height: Dimensions.paddingSizeDefault),
           ],
           if (isCustomEnabled) ...[
-            Text('Custom Amount', style: robotoMedium),
+            Text('custom_amount'.tr, style: robotoMedium),
             const SizedBox(height: Dimensions.paddingSizeSmall),
             Container(
               decoration: BoxDecoration(
@@ -378,8 +392,8 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                 enabled: isCustomEnabled,
                 decoration: InputDecoration(
                   hintText: isCustomEnabled
-                      ? 'Enter amount'
-                      : 'Custom amount disabled',
+                      ? 'enter_amount'.tr
+                      : 'custom_amount_disabled'.tr,
                   prefixIcon: Icon(Icons.attach_money,
                       color: Theme.of(context).primaryColor),
                   border: InputBorder.none,
@@ -456,7 +470,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
             children: [
               Expanded(
                 child: _buildBreakdownPill(
-                  label: 'Amount to Pay:',
+                  label: 'amount_to_pay'.tr,
                   value: _formatPrice(_selectedGiftAmount),
                   isSolid: false,
                   colors: primaryColors,
@@ -465,7 +479,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
               const SizedBox(width: Dimensions.paddingSizeExtraSmall),
               Expanded(
                 child: _buildBreakdownPill(
-                  label: 'Bonus Value:',
+                  label: 'bonus_value'.tr,
                   value: _formatPrice(_giftBonusAmount),
                   isSolid: false,
                   colors: primaryColors,
@@ -474,7 +488,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
               const SizedBox(width: Dimensions.paddingSizeExtraSmall),
               Expanded(
                 child: _buildBreakdownPill(
-                  label: 'Total Card Value:',
+                  label: 'total_card_value'.tr,
                   value: _formatPrice(amountToPay),
                   isSolid: true,
                   colors: voucherColors,
@@ -517,7 +531,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Card Info',
+        Text('card_info'.tr,
             style:
                 robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge)),
         const SizedBox(height: Dimensions.paddingSizeDefault),
@@ -538,7 +552,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                   ),
                   child: Center(
                     child: Text(
-                      'Send as a Gift card',
+                      'send_as_a_gift_card'.tr,
                       style: robotoMedium.copyWith(
                         color: !_buyForSelf
                             ? Colors.white
@@ -566,7 +580,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                   ),
                   child: Center(
                     child: Text(
-                      'Buy for your self',
+                      'buy_for_your_self'.tr,
                       style: robotoMedium.copyWith(
                         color: _buyForSelf
                             ? Colors.white
@@ -582,10 +596,10 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
         ),
         if (!_buyForSelf) ...[
           const SizedBox(height: Dimensions.paddingSizeLarge),
-          Text('Recipient Name', style: robotoMedium),
+          Text('recipient_name'.tr, style: robotoMedium),
           const SizedBox(height: Dimensions.paddingSizeSmall),
           CustomTextField(
-            hintText: 'Enter name',
+            hintText: 'enter_name'.tr,
             controller: _firstNameController,
             inputType: TextInputType.name,
             showLabelText: false,
@@ -594,10 +608,10 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
             fillColor: Colors.white,
           ),
           const SizedBox(height: Dimensions.paddingSizeDefault),
-          Text('Enter Message (Optional)', style: robotoMedium),
+          Text('enter_message_optional'.tr, style: robotoMedium),
           const SizedBox(height: Dimensions.paddingSizeSmall),
           CustomTextField(
-            hintText: 'Write your message here...',
+            hintText: 'write_your_message_here'.tr,
             controller: _messageController,
             inputType: TextInputType.multiline,
             maxLines: 3,
@@ -619,7 +633,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
           ),
           if (messageTemplates.isNotEmpty) ...[
             const SizedBox(height: Dimensions.paddingSizeSmall),
-            Text('Message Templates',
+            Text('message_templates'.tr,
                 style: robotoRegular.copyWith(
                     color: Theme.of(context).disabledColor,
                     fontSize: Dimensions.fontSizeSmall)),
@@ -681,14 +695,14 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Delivery via Email',
+        Text('delivery_via_email'.tr,
             style:
                 robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge)),
         const SizedBox(height: Dimensions.paddingSizeDefault),
-        Text('Share via Email', style: robotoMedium),
+        Text('share_via_email'.tr, style: robotoMedium),
         const SizedBox(height: Dimensions.paddingSizeSmall),
         CustomTextField(
-          hintText: 'Enter Recipient Email',
+          hintText: 'enter_recipient_email'.tr,
           controller: _emailController,
           inputType: TextInputType.emailAddress,
           showLabelText: false,
@@ -697,13 +711,13 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
           fillColor: Colors.white,
         ),
         const SizedBox(height: Dimensions.paddingSizeDefault),
-        Text('E-mail Delivery Time', style: robotoMedium),
+        Text('email_delivery_time'.tr, style: robotoMedium),
         const SizedBox(height: Dimensions.paddingSizeSmall),
         Row(
           children: [
             Expanded(
               child: CustomButton(
-                buttonText: 'Send on future date',
+                buttonText: 'send_on_future_date'.tr,
                 onPressed: () => setState(() => _selectedTimingIndex = 1),
                 color: _selectedTimingIndex == 1
                     ? Theme.of(context).primaryColor
@@ -719,7 +733,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
             const SizedBox(width: Dimensions.paddingSizeSmall),
             Expanded(
               child: CustomButton(
-                buttonText: 'Send instantly',
+                buttonText: 'send_instantly'.tr,
                 onPressed: () => setState(() {
                   _selectedTimingIndex = 0;
                   _selectedDate = null;
@@ -747,8 +761,9 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                 firstDate: DateTime.now(),
                 lastDate: DateTime.now().add(const Duration(days: 365)),
               );
-              if (pickedDate != null)
+              if (pickedDate != null && mounted) {
                 setState(() => _selectedDate = pickedDate);
+              }
             },
             child: Container(
               padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
@@ -765,7 +780,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                   Text(
                     _selectedDate != null
                         ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
-                        : 'Select Date',
+                        : 'select_date'.tr,
                     style: robotoRegular,
                   ),
                   Icon(Icons.calendar_today_outlined,
@@ -783,20 +798,21 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
     String senderName =
         '${Get.find<ProfileController>().userInfoModel?.fName ?? ''} ${Get.find<ProfileController>().userInfoModel?.lName ?? ''}'
             .trim();
-    if (senderName.isEmpty) senderName = 'Sender';
+    if (senderName.isEmpty) senderName = 'sender'.tr;
 
     String recipientName =
         _buyForSelf ? senderName : _firstNameController.text.trim();
-    if (recipientName.isEmpty) recipientName = 'Recipient';
+    if (recipientName.isEmpty) recipientName = 'recipient'.tr;
 
-    String sharingMethod = _buyForSelf ? 'Self Purchase' : 'Email Delivery';
+    String sharingMethod =
+        _buyForSelf ? 'self_purchase'.tr : 'email_delivery'.tr;
     String timing = _buyForSelf
-        ? 'Instant'
+        ? 'instant'.tr
         : (_selectedTimingIndex == 1
             ? (_selectedDate != null
                 ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
-                : 'Scheduled')
-            : 'Instantly');
+                : 'scheduled'.tr)
+            : 'instantly'.tr);
 
     String? designImage;
     if (_selectedOccasion != null &&
@@ -811,13 +827,13 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Order review',
+        Text('order_review'.tr,
             style: robotoBold.copyWith(
                 fontSize: Dimensions.fontSizeExtraLarge,
                 color: Theme.of(context).primaryColor)),
         const SizedBox(height: Dimensions.paddingSizeDefault),
         if (designImage != null) ...[
-          Text('Gift Card Design', style: robotoBold),
+          Text('gift_card_design'.tr, style: robotoBold),
           const SizedBox(height: Dimensions.paddingSizeSmall),
           Container(
             height: 160,
@@ -852,15 +868,15 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Order Info', style: robotoBold),
+              Text('order_info'.tr, style: robotoBold),
               const SizedBox(height: Dimensions.paddingSizeSmall),
-              _buildInfoRow('Merchant', item.storeName ?? ''),
-              _buildInfoRow('Recipient Name', recipientName),
+              _buildInfoRow('merchant'.tr, item.storeName ?? ''),
+              _buildInfoRow('recipient_name'.tr, recipientName),
               if (!_buyForSelf && _messageController.text.isNotEmpty)
-                _buildInfoRow('Recipient Message', _messageController.text),
-              _buildInfoRow('Send by', senderName),
-              _buildInfoRow('Delivery Method', sharingMethod),
-              _buildInfoRow('Delivery Time', timing),
+                _buildInfoRow('recipient_message'.tr, _messageController.text),
+              _buildInfoRow('send_by'.tr, senderName),
+              _buildInfoRow('delivery_method'.tr, sharingMethod),
+              _buildInfoRow('delivery_time'.tr, timing),
             ],
           ),
         ),
@@ -876,15 +892,16 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Payment Breakdown', style: robotoBold),
+              Text('payment_breakdown'.tr, style: robotoBold),
               const SizedBox(height: Dimensions.paddingSizeSmall),
-              _buildInfoRow('Card Value',
+              _buildInfoRow('card_value'.tr,
                   _formatPrice(_selectedGiftAmount + _giftBonusAmount),
                   isBoldValue: true),
               if (_giftBonusAmount > 0)
-                _buildInfoRow('Bonus Value', _formatPrice(_giftBonusAmount),
+                _buildInfoRow('bonus_value'.tr, _formatPrice(_giftBonusAmount),
                     isBoldValue: true, valueColor: Colors.purple),
-              _buildInfoRow('Amount to pay', _formatPrice(_selectedGiftAmount),
+              _buildInfoRow(
+                  'amount_to_pay'.tr, _formatPrice(_selectedGiftAmount),
                   isBoldValue: true),
             ],
           ),
@@ -917,7 +934,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Select Design',
+        Text('select_design'.tr,
             style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeDefault)),
         const SizedBox(height: Dimensions.paddingSizeSmall),
         GridView.builder(
@@ -993,7 +1010,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Select Occasion',
+        Text('select_occasion'.tr,
             style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeDefault)),
         const SizedBox(height: Dimensions.paddingSizeSmall),
         SingleChildScrollView(
@@ -1169,22 +1186,12 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
         if (item.type == 'voucher' &&
             (item.voucherIds?.toLowerCase().trim() == 'flat discount' ||
                 item.bundleType == 'gift')) {
-          if (item.bonusConfiguration != null &&
-              item.bonusConfiguration!.isNotEmpty) {
-            double maxBonus = 0;
-            for (var config in item.bonusConfiguration!) {
-              double bonus =
-                  double.tryParse(config.bonusPercentage ?? '0') ?? 0;
-              if (bonus > maxBonus) {
-                maxBonus = bonus;
-              }
-            }
-            if (maxBonus > 0) {
-              initialDiscount = maxBonus;
-              discount = maxBonus;
-              discountType = 'percent';
-            }
-          }
+          double dynamicBonus = item.bundleType == 'gift'
+              ? _giftBonusPercentage
+              : _flatVoucherBonus;
+          initialDiscount = dynamicBonus;
+          discount = dynamicBonus;
+          discountType = 'percent';
         } else if (item.type == 'voucher' &&
             (item.bundleType == 'bogo_free' ||
                 (item.voucherIds?.toLowerCase().trim().contains('bogo') ??
@@ -1255,9 +1262,16 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
           }
         }
 
+        // For bundle vouchers, the voucher's own price is often a dummy or placeholder
+        // We should reset it to 0 and build it from variations/products instead
+        if (item.type == 'voucher' &&
+            item.bundleType != 'simple x' &&
+            item.bundleType != 'gift') {
+          price = 0;
+        }
+
         price = (price ?? 0) + variationPrice;
-        // For "simple x" vouchers, the price field is already the final discounted price
-        // So we should NOT apply discount again
+
         double priceWithDiscount =
             (item.type == 'voucher' && item.bundleType == 'simple x')
                 ? price
@@ -1362,12 +1376,94 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
         }
 
         double priceWithDiscountAndAddons = 0;
+
+        // Apply Customer Commission Logic after all price components are ready
+        if (item.store?.commissionPaidBy == 'customer' &&
+            item.store?.comission != null &&
+            item.store!.comission! > 0) {
+          if (discountType == 'percent') {
+            double newDiscountPercentage =
+                discount! - (1 - discount! / 100) * item.store!.comission!;
+            discount = newDiscountPercentage;
+            initialDiscount = newDiscountPercentage;
+
+            // For Simple X, update price using the new percentage
+            if (item.bundleType == 'simple x') {
+              double refPrice = (item.actualPrice ?? item.price ?? 100);
+              price = refPrice * (1 - discount! / 100);
+            }
+          } else if (discountType == 'fixed' || discountType == 'amount') {
+            // RefPrice = All components before discount
+            double refPrice = (price ?? 0) + variationCost + bundleSumPrice;
+
+            // Special handling for different voucher types
+            if (item.bundleType == 'simple x') {
+              refPrice = (item.actualPrice ?? item.price ?? 100);
+            } else if (item.bundleType == 'mix_match') {
+              refPrice = itemController.getMixMatchRawTotalAmount(0);
+            } else if (item.bundleType == 'bogo_free') {
+              double bogoRaw = 0;
+              if (itemController.selectedBogoProductAIndex != null) {
+                bogoRaw += (item
+                        .product![itemController.selectedBogoProductAIndex!]
+                        .price ??
+                    0);
+              }
+              if (itemController.selectedBogoProductBIndex != null) {
+                bogoRaw += (item
+                        .productB![itemController.selectedBogoProductBIndex!]
+                        .price ??
+                    0);
+              }
+              if (bogoRaw > 0) refPrice = bogoRaw;
+            }
+
+            if (refPrice <= 0)
+              refPrice = (item.actualPrice ?? item.price ?? 100);
+
+            double initialDiscountAmount = discount!;
+            double priceAfterDiscount = refPrice - initialDiscountAmount;
+            double commissionAmount =
+                priceAfterDiscount * (item.store!.comission! / 100);
+
+            discount = initialDiscountAmount - commissionAmount;
+            initialDiscount = discount;
+
+            debugPrint('--- Saim Formula applied (Shifted) ---');
+            debugPrint(
+                'RefPrice: $refPrice, InitialDisc: $initialDiscountAmount, Commission: $commissionAmount, NewDisc: $discount');
+
+            // For Simple X, we must update the price variable as it represents the final deal price
+            if (item.bundleType == 'simple x') {
+              price = refPrice - discount!;
+            }
+          }
+        }
+
+        // Refresh priceWithDiscount after discount update
+        priceWithDiscount =
+            (item.type == 'voucher' && item.bundleType == 'simple x')
+                ? (price ?? 0)
+                : (PriceConverter.convertWithDiscount(
+                        price, discount, discountType) ??
+                    0);
+
+        // Refresh bundleSumPriceWithDiscount after discount update
+        if (item.type == 'voucher' && bundleSumPrice > 0) {
+          bundleSumPriceWithDiscount = 0;
+          for (var p in item.product!) {
+            if (p.foodVariations == null || p.foodVariations!.isEmpty) {
+              bundleSumPriceWithDiscount += PriceConverter.convertWithDiscount(
+                  p.price ?? 0, discount, discountType)!;
+            }
+          }
+        }
         double bogoLowerPrice = 0;
         double bogoSumWithoutAddons = 0;
         if (item.bundleType == 'mix_match') {
           price = itemController.getMixMatchRawTotalAmount(0);
           priceWithDiscountAndAddons = itemController.getMixMatchTotalAmount(
-              priceWithDiscount, item.discount, item.discountType);
+              priceWithDiscount, discount, discountType);
         } else if (item.bundleType == 'bogo_free') {
           // BOGO Logic Refined: Max(priceA + variationsA, priceB + variationsB) + All Addons
           // We separate options into variations and addons for correct BOGO math
@@ -1452,6 +1548,15 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
           double totalA = priceA + varA;
           double totalB = priceB + varB;
           double basePrice = totalA > totalB ? totalA : totalB;
+
+          // Apply commission to BOGO base price only when BOTH products are selected
+          if (item.store?.commissionPaidBy == 'customer' &&
+              item.store?.comission != null &&
+              item.store!.comission! > 0 &&
+              itemController.selectedBogoProductAIndex != null &&
+              itemController.selectedBogoProductBIndex != null) {
+            basePrice = basePrice * (1 + item.store!.comission! / 100);
+          }
           bogoLowerPrice =
               (totalA + totalB + adsA + adsB) * (itemController.quantity ?? 1);
           bogoSumWithoutAddons =
@@ -1486,6 +1591,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                 (variationCost * (itemController.quantity ?? 1));
           }
         }
+
         double totalPriceWithoutDiscount = 0;
         if (item.bundleType == 'mix_match' || item.bundleType == 'bogo_free') {
           totalPriceWithoutDiscount = price!;
@@ -1508,6 +1614,30 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                     (variationCost * (itemController.quantity ?? 1));
           }
         }
+
+        // Recalculate Save Tag dynamically for UI based on final adjusted price
+        if (item.store?.commissionPaidBy == 'customer' &&
+            item.store?.comission != null &&
+            item.store!.comission! > 0) {
+          double totalAds = (addonsCost * (itemController.quantity ?? 1));
+          double basePriceForDiscount = (item.bundleType == 'bogo_free')
+              ? bogoLowerPrice
+              : totalPriceWithoutDiscount;
+
+          // Exclude addons from Save Tag calculation to prevent dilution
+          double baseWithoutAds = basePriceForDiscount - totalAds;
+          double payableWithoutAds = priceWithDiscountAndAddons - totalAds;
+          double netDiscountAmount = baseWithoutAds - payableWithoutAds;
+
+          if (netDiscountAmount > 0 && baseWithoutAds > 0) {
+            initialDiscount = (netDiscountAmount / baseWithoutAds) * 100;
+            if (initialDiscount! < 0) initialDiscount = 0;
+            discountType = 'percent';
+          } else if (netDiscountAmount <= 0) {
+            initialDiscount = 0;
+          }
+        }
+
         bool isAvailable = DateConverter.isAvailable(
             item.availableTimeStarts, item.availableTimeEnds);
 
@@ -1769,9 +1899,9 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                 : InkWell(
                                                     onTap: () {
                                                       if (widget.inStorePage) {
-                                                        Get.back();
+                                                        Navigator.pop(context);
                                                       } else {
-                                                        Get.back();
+                                                        Navigator.pop(context);
                                                         Get.find<
                                                                 CartController>()
                                                             .forcefullySetModule(
@@ -1950,7 +2080,9 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                 ? _buildMixMatchSelection(
                                                     context,
                                                     itemController,
-                                                    item)
+                                                    item,
+                                                    discount,
+                                                    discountType)
                                                 : (item.bundleType ==
                                                         'bogo_free')
                                                     ? _buildBogoSelection(
@@ -2017,7 +2149,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                                             Text(
                                                                               PriceConverter.convertPrice(totalPriceWithoutDiscount),
                                                                               style: robotoMedium.copyWith(
-                                                                                fontSize: Dimensions.fontSizeLarge,
+                                                                                fontSize: Dimensions.fontSizeSmall,
                                                                                 color: Theme.of(context).disabledColor,
                                                                                 decoration: TextDecoration.lineThrough,
                                                                               ),
@@ -2103,8 +2235,6 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                                           ),
                                                                           child:
                                                                               Column(
-                                                                            crossAxisAlignment:
-                                                                                CrossAxisAlignment.start,
                                                                             children: [
                                                                               InkWell(
                                                                                 onTap: () {
@@ -2232,7 +2362,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
 
                                                                                 Text('description'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault, color: Colors.black)),
                                                                                 const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-                                                                                Text(item.product![index].description ?? '', style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge, color: Colors.black)),
+                                                                                Text(item.product![index].description ?? '', style: robotoBold.copyWith(fontSize: Dimensions.fontSizeSmall, color: Colors.black)),
                                                                                 const SizedBox(height: Dimensions.paddingSizeSmall),
                                                                                 Divider(color: Theme.of(context).disabledColor.withValues(alpha: 0.5)),
                                                                                 const SizedBox(height: Dimensions.paddingSizeSmall),
@@ -2435,7 +2565,13 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                                             .start,
                                                                     children: [
                                                                       Text(
-                                                                        'Redeemables at ${item.branches!.length} ${item.branches!.length > 1 ? 'outlets' : 'outlet'}',
+                                                                        'redeemable_at_x_outlets'
+                                                                            .trParams({
+                                                                          'count': item
+                                                                              .branches!
+                                                                              .length
+                                                                              .toString()
+                                                                        }),
                                                                         style: robotoMedium.copyWith(
                                                                             fontSize:
                                                                                 Dimensions.fontSizeLarge,
@@ -2550,7 +2686,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                                                               _selectedBranchId = branch.id;
                                                                                               _selectedBranch = branch;
                                                                                             });
-                                                                                            Get.back();
+                                                                                            Navigator.pop(context);
                                                                                           }
                                                                                         : null,
                                                                                   );
@@ -2612,7 +2748,13 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                               title: Row(
                                                                 children: [
                                                                   Text(
-                                                                      'Redeemables at ${item.branches!.length} ${item.branches!.length > 1 ? 'outlets' : 'outlet'}',
+                                                                      'redeemable_at_x_outlets'
+                                                                          .trParams({
+                                                                        'count': item
+                                                                            .branches!
+                                                                            .length
+                                                                            .toString()
+                                                                      }),
                                                                       style: robotoMedium.copyWith(
                                                                           fontSize:
                                                                               Dimensions.fontSizeLarge)),
@@ -2720,6 +2862,9 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                             _buildVoucherTerms(item, context),
 
                                             _buildHowItWorks(item, context),
+
+                                            _buildCustomerReviewSection(
+                                                item, context),
 
                                             (item.nutritionsName != null &&
                                                     (item.nutritionsName!
@@ -2975,7 +3120,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                                   .white)),
                                                   Text(
                                                     discountType == 'percent'
-                                                        ? '${initialDiscount?.toStringAsFixed(0)}%'
+                                                        ? '${initialDiscount != null && initialDiscount! % 1 == 0 ? initialDiscount?.toStringAsFixed(0) : initialDiscount?.toStringAsFixed(1)}%'
                                                         : PriceConverter
                                                             .convertPrice(
                                                                 initialDiscount),
@@ -3037,8 +3182,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                 'bogo_free') ...[
                                               // Low price strikethrough on LEFT
                                               Text(
-                                                PriceConverter.convertPrice(
-                                                    bogoLowerPrice),
+                                                _formatPrice(bogoLowerPrice),
                                                 style: robotoMedium.copyWith(
                                                   fontSize: Dimensions
                                                       .fontSizeExtraLarge,
@@ -3052,10 +3196,10 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                   width: Dimensions
                                                       .paddingSizeExtraSmall),
                                               // High price prominently on RIGHT
-                                              PriceConverter
-                                                  .convertAnimationPrice(
-                                                priceWithDiscountAndAddons,
-                                                textStyle: robotoBold.copyWith(
+                                              Text(
+                                                _formatPrice(
+                                                    priceWithDiscountAndAddons),
+                                                style: robotoBold.copyWith(
                                                     fontSize: Dimensions
                                                         .fontSizeOverLarge,
                                                     color: Theme.of(context)
@@ -3065,7 +3209,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                               if (totalPriceWithoutDiscount >
                                                   priceWithDiscountAndAddons)
                                                 Text(
-                                                  PriceConverter.convertPrice(
+                                                  _formatPrice(
                                                       totalPriceWithoutDiscount),
                                                   style: robotoMedium.copyWith(
                                                     fontSize: Dimensions
@@ -3081,9 +3225,9 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                 const SizedBox(
                                                     width: Dimensions
                                                         .paddingSizeExtraSmall),
-                                              PriceConverter
-                                                  .convertAnimationPrice(
-                                                (item.type == 'voucher')
+                                              Text(
+                                                _formatPrice((item.type ==
+                                                        'voucher')
                                                     ? (item.bundleType ==
                                                             'simple x'
                                                         ? priceWithDiscountAndAddons
@@ -3092,8 +3236,8 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                                 (itemController
                                                                         .quantity ??
                                                                     1))))
-                                                    : priceWithDiscountAndAddons,
-                                                textStyle: robotoBold.copyWith(
+                                                    : priceWithDiscountAndAddons),
+                                                style: robotoBold.copyWith(
                                                     fontSize: Dimensions
                                                         .fontSizeOverLarge,
                                                     color: Theme.of(context)
@@ -3101,6 +3245,38 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                               ),
                                             ],
                                           ]),
+                                          if (item.availabilityForCurrentUser
+                                                  ?.status ==
+                                              'not_available')
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: Dimensions
+                                                      .paddingSizeExtraSmall),
+                                              child: Text(
+                                                'out_of_stock'.tr,
+                                                style: robotoBold.copyWith(
+                                                    fontSize: Dimensions
+                                                        .fontSizeLarge,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .error),
+                                              ),
+                                            ),
+                                          if (item.availabilityForCurrentUser
+                                                  ?.userUsage !=
+                                              null)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: Dimensions
+                                                      .paddingSizeExtraSmall),
+                                              child: Text(
+                                                '${'remaining'.tr}: ${item.availabilityForCurrentUser!.userUsage!.remaining ?? 0}',
+                                                style: robotoBold.copyWith(
+                                                    fontSize: Dimensions
+                                                        .fontSizeLarge,
+                                                    color: Colors.black),
+                                              ),
+                                            ),
                                         ]);
                                   }),
                                 if (item.type != 'voucher' ||
@@ -3115,63 +3291,29 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                       children: [
                                         if (item.type == 'voucher' &&
                                             item.voucherIds != 'In-Store')
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text('${'total_amount'.tr}:',
-                                                  style: robotoMedium.copyWith(
-                                                      fontSize: Dimensions
-                                                          .fontSizeSmall,
-                                                      color: Theme.of(context)
-                                                          .disabledColor)),
-                                              Row(
-                                                children: [
-                                                  if (item.bundleType ==
-                                                      'bogo_free') ...[
-                                                    // Low price strikethrough on LEFT
-                                                    Text(
-                                                      PriceConverter
-                                                          .convertPrice(
-                                                              bogoLowerPrice),
-                                                      style:
-                                                          robotoMedium.copyWith(
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text('${'total_amount'.tr}:',
+                                                    style: robotoMedium.copyWith(
                                                         fontSize: Dimensions
-                                                            .fontSizeExtraLarge,
+                                                            .fontSizeSmall,
                                                         color: Theme.of(context)
-                                                            .disabledColor,
-                                                        decoration:
-                                                            TextDecoration
-                                                                .lineThrough,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(
-                                                        width: Dimensions
-                                                            .paddingSizeExtraSmall),
-                                                    // High price prominently on RIGHT
-                                                    PriceConverter
-                                                        .convertAnimationPrice(
-                                                      priceWithDiscountAndAddons,
-                                                      textStyle: robotoBold.copyWith(
-                                                          fontSize: Dimensions
-                                                              .fontSizeOverLarge,
-                                                          color: Theme.of(
-                                                                  context)
-                                                              .primaryColor),
-                                                    ),
-                                                  ] else ...[
-                                                    // Original logic for non-BOGO vouchers
-                                                    if (totalPriceWithoutDiscount >
-                                                            priceWithDiscountAndAddons ||
-                                                        item.bundleType ==
-                                                            'gift')
+                                                            .disabledColor)),
+                                                Row(
+                                                  children: [
+                                                    if (item.bundleType ==
+                                                        'bogo_free') ...[
+                                                      // Low price strikethrough on LEFT
                                                       Text(
-                                                        PriceConverter.convertPrice(
-                                                            totalPriceWithoutDiscount),
+                                                        _formatPrice(
+                                                            bogoLowerPrice),
                                                         style: robotoMedium
                                                             .copyWith(
                                                           fontSize: Dimensions
-                                                              .fontSizeLarge,
+                                                              .fontSizeExtraLarge,
                                                           color: Theme.of(
                                                                   context)
                                                               .disabledColor,
@@ -3180,38 +3322,113 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                                   .lineThrough,
                                                         ),
                                                       ),
-                                                    if (totalPriceWithoutDiscount >
-                                                            priceWithDiscountAndAddons ||
-                                                        item.bundleType ==
-                                                            'gift')
                                                       const SizedBox(
                                                           width: Dimensions
                                                               .paddingSizeExtraSmall),
-                                                    PriceConverter
-                                                        .convertAnimationPrice(
-                                                      (item.type == 'voucher')
-                                                          ? (item.bundleType ==
-                                                                      'gift' ||
-                                                                  item.bundleType ==
-                                                                      'simple x'
-                                                              ? priceWithDiscountAndAddons
-                                                              : (priceWithDiscountAndAddons -
-                                                                  (priceWithDiscount *
-                                                                      (itemController
-                                                                              .quantity ??
-                                                                          1))))
-                                                          : priceWithDiscountAndAddons,
-                                                      textStyle: robotoBold.copyWith(
+                                                      // High price prominently on RIGHT
+                                                      Text(
+                                                        _formatPrice(
+                                                            priceWithDiscountAndAddons),
+                                                        style:
+                                                            robotoBold.copyWith(
                                                           fontSize: Dimensions
                                                               .fontSizeOverLarge,
-                                                          color: Theme.of(
-                                                                  context)
-                                                              .primaryColor),
-                                                    ),
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .primaryColor,
+                                                        ),
+                                                      ),
+                                                    ] else ...[
+                                                      // Original logic for non-BOGO vouchers
+                                                      if (totalPriceWithoutDiscount >
+                                                              priceWithDiscountAndAddons ||
+                                                          item.bundleType ==
+                                                              'gift')
+                                                        Text(
+                                                          _formatPrice(
+                                                              totalPriceWithoutDiscount),
+                                                          style: robotoMedium
+                                                              .copyWith(
+                                                            fontSize: Dimensions
+                                                                .fontSizeLarge,
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .disabledColor,
+                                                            decoration:
+                                                                TextDecoration
+                                                                    .lineThrough,
+                                                          ),
+                                                        ),
+                                                      if (totalPriceWithoutDiscount >
+                                                              priceWithDiscountAndAddons ||
+                                                          item.bundleType ==
+                                                              'gift')
+                                                        const SizedBox(
+                                                            width: Dimensions
+                                                                .paddingSizeExtraSmall),
+                                                      Text(
+                                                        _formatPrice((item
+                                                                    .type ==
+                                                                'voucher')
+                                                            ? (item.bundleType ==
+                                                                        'gift' ||
+                                                                    item.bundleType ==
+                                                                        'simple x'
+                                                                ? priceWithDiscountAndAddons
+                                                                : (priceWithDiscountAndAddons -
+                                                                    (priceWithDiscount *
+                                                                        (itemController.quantity ??
+                                                                            1))))
+                                                            : priceWithDiscountAndAddons),
+                                                        style:
+                                                            robotoBold.copyWith(
+                                                          fontSize: Dimensions
+                                                              .fontSizeOverLarge,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .primaryColor,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ],
-                                                ],
-                                              ),
-                                            ],
+                                                ),
+                                                if (item.availabilityForCurrentUser
+                                                        ?.status ==
+                                                    'not_available')
+                                                  Padding(
+                                                    padding: const EdgeInsets
+                                                        .only(
+                                                        top: Dimensions
+                                                            .paddingSizeExtraSmall),
+                                                    child: Text(
+                                                      'out_of_stock'.tr,
+                                                      style: robotoBold.copyWith(
+                                                          fontSize: Dimensions
+                                                              .fontSizeSmall,
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .error),
+                                                    ),
+                                                  ),
+                                                if (item.availabilityForCurrentUser
+                                                        ?.userUsage !=
+                                                    null)
+                                                  Padding(
+                                                    padding: const EdgeInsets
+                                                        .only(
+                                                        top: Dimensions
+                                                            .paddingSizeExtraSmall),
+                                                    child: Text(
+                                                      '${'remaining'.tr}: ${item.availabilityForCurrentUser!.userUsage!.remaining ?? 0}',
+                                                      style: robotoBold.copyWith(
+                                                          fontSize: Dimensions
+                                                              .fontSizeSmall,
+                                                          color: Colors.black),
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
                                           ),
 
                                         // Quantity
@@ -3817,10 +4034,11 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                                   null &&
                                                               item.discount! >
                                                                   0)
-                                                          ? (PriceConverter.convertWithDiscount(
-                                                                  sel.totalPrice,
-                                                                  item.discount,
-                                                                  item.discountType) ??
+                                                          ? (PriceConverter
+                                                                  .convertWithDiscount(
+                                                                      sel.totalPrice,
+                                                                      discount,
+                                                                      discountType) ??
                                                               sel.totalPrice)
                                                           : sel.totalPrice;
                                                       mixMatchTotalDiscount +=
@@ -3923,27 +4141,23 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                             'bogo_free'
                                                         ? 0
                                                         : null,
-                                                    discountAmount: item
-                                                                .bundleType ==
-                                                            'bogo_free'
-                                                        ? bogoFreeItemPrice
-                                                        : item.bundleType ==
-                                                                'mix_match'
-                                                            ? (mixMatchTotalDiscount >
-                                                                    0
-                                                                ? mixMatchTotalDiscount
-                                                                : 0)
-                                                            : (item.type ==
-                                                                        'voucher' &&
-                                                                    item.bundleType !=
-                                                                        'gift')
-                                                                ? (totalPriceWithoutDiscount -
-                                                                        priceWithDiscountAndAddons)
-                                                                    .abs()
-                                                                : (item.bundleType ==
-                                                                        'gift'
-                                                                    ? _giftBonusAmount
-                                                                    : null),
+                                                    discountAmount: (item.type ==
+                                                                'voucher' &&
+                                                            item.bundleType !=
+                                                                'gift')
+                                                        ? (totalPriceWithoutDiscount -
+                                                                (priceWithDiscountAndAddons /
+                                                                    (itemController
+                                                                            .quantity ??
+                                                                        1)))
+                                                            .abs()
+                                                        : (item.bundleType ==
+                                                                'bogo_free'
+                                                            ? bogoFreeItemPrice
+                                                            : (item.bundleType ==
+                                                                    'gift'
+                                                                ? _giftBonusAmount
+                                                                : null)),
                                                   ));
 
                                                   // 2. Nested Products Cart Objects (for all bundle simple products or those with variations)
@@ -4072,6 +4286,8 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                         productAddOnQtys,
                                                         'Item',
                                                         cartGroup: cartGroup,
+                                                        discountAmount: 0,
+                                                        totalPrice: 0,
                                                         storeId: _isDeliveryOrPickup(
                                                                 item)
                                                             ? _selectedBranchId
@@ -4101,9 +4317,9 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                         selectedVariations:
                                                             selection
                                                                 .selectedVariations,
-                                                        discount: item.discount,
+                                                        discount: discount,
                                                         discountType:
-                                                            item.discountType,
+                                                            discountType,
                                                       );
 
                                                       List<int?>
@@ -4150,6 +4366,8 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                         mixMatchAddOnQtys,
                                                         'Item',
                                                         cartGroup: cartGroup,
+                                                        discountAmount: 0,
+                                                        totalPrice: 0,
                                                         storeId: _isDeliveryOrPickup(
                                                                 item)
                                                             ? _selectedBranchId
@@ -4196,6 +4414,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                       bogoAddOnQtyA,
                                                       'Item',
                                                       cartGroup: cartGroup,
+                                                      discountAmount: 0,
                                                       storeId: _isDeliveryOrPickup(
                                                               item)
                                                           ? _selectedBranchId
@@ -4226,6 +4445,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                       bogoAddOnQtyB,
                                                       'Item',
                                                       cartGroup: cartGroup,
+                                                      discountAmount: 0,
                                                       storeId: _isDeliveryOrPickup(
                                                               item)
                                                           ? _selectedBranchId
@@ -4324,7 +4544,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
 
                                                     if (allSuccess) {
                                                       if (widget.cart != null) {
-                                                        Get.back();
+                                                        Navigator.pop(context);
                                                       } else {
                                                         if (!isFlatDiscount) {
                                                           debugPrint(
@@ -4489,7 +4709,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                 const SizedBox(height: Dimensions.paddingSizeLarge),
                 CustomButton(
                   buttonText: 'ok'.tr,
-                  onPressed: () => Get.back(),
+                  onPressed: () => Navigator.pop(context),
                   radius: Dimensions.radiusSmall,
                   height: 50,
                 ),
@@ -4681,7 +4901,11 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
   }
 
   Widget _buildMixMatchSelection(
-      BuildContext context, ItemController itemController, Item item) {
+      BuildContext context,
+      ItemController itemController,
+      Item item,
+      double? discount,
+      String? discountType) {
     int requiredQty = item.requiredQuantity ?? 0;
     int currentQty = itemController.selectedMixMatchProducts.length;
 
@@ -4715,8 +4939,9 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
             const SizedBox(width: Dimensions.paddingSizeSmall),
             Text(
                 currentQty == requiredQty
-                    ? 'Selection Complete'
-                    : 'Select ${requiredQty - currentQty} Items',
+                    ? 'selection_complete'.tr
+                    : 'select_x_items'.trParams(
+                        {'count': (requiredQty - currentQty).toString()}),
                 style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge)),
           ]),
           const SizedBox(height: Dimensions.paddingSizeSmall),
@@ -4818,8 +5043,8 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                     : (PriceConverter
                                                             .convertWithDiscount(
                                                                 variations,
-                                                                item.discount,
-                                                                item.discountType) ??
+                                                                discount,
+                                                                discountType) ??
                                                         variations);
 
                                             double totalPrice =
@@ -4927,7 +5152,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                   height: Dimensions.paddingSizeExtraSmall),
                               Text(item.product![index].description!,
                                   style: robotoBold.copyWith(
-                                      fontSize: Dimensions.fontSizeLarge,
+                                      fontSize: Dimensions.fontSizeSmall,
                                       color: Colors.black)),
                               const SizedBox(
                                   height: Dimensions.paddingSizeDefault),
@@ -4997,7 +5222,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
             product.foodVariations!.isNotEmpty) ...[
           Text('variations'.tr,
               style: robotoBold.copyWith(
-                  fontSize: Dimensions.fontSizeLarge, color: Colors.black)),
+                  fontSize: Dimensions.fontSizeSmall, color: Colors.black)),
           const SizedBox(height: Dimensions.paddingSizeSmall),
           ListView.builder(
             shrinkWrap: true,
@@ -5224,7 +5449,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
           }
 
           return CustomButton(
-            buttonText: 'Confirm Selection',
+            buttonText: 'confirm_selection'.tr,
             onPressed: canConfirm
                 ? () {
                     calculateAndSave();
@@ -5306,8 +5531,13 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
     }
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      _buildBogoSection(context, itemController, item.product ?? [],
-          itemController.selectedBogoProductAIndex, 'First Selected Item', true,
+      _buildBogoSection(
+          context,
+          itemController,
+          item.product ?? [],
+          itemController.selectedBogoProductAIndex,
+          'first_selected_item'.tr,
+          true,
           isFree: aIsFree),
       const SizedBox(height: Dimensions.paddingSizeDefault),
       _buildBogoSection(
@@ -5315,7 +5545,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
           itemController,
           item.productB ?? [],
           itemController.selectedBogoProductBIndex,
-          'Second Selected Item',
+          'second_selected_item'.tr,
           false,
           isFree: bIsFree),
       const SizedBox(height: Dimensions.paddingSizeDefault),
@@ -5380,11 +5610,11 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
               child: Text(
                 title,
                 style: robotoBold.copyWith(
-                    fontSize: Dimensions.fontSizeLarge, color: Colors.black),
+                    fontSize: Dimensions.fontSizeSmall, color: Colors.black),
               ),
             ),
             Text(
-              isExpanded ? 'View' : 'See all',
+              isExpanded ? 'view'.tr : 'see_all'.tr,
               style: robotoRegular.copyWith(
                 color: Theme.of(context).primaryColor,
                 fontSize: Dimensions.fontSizeSmall,
@@ -5668,7 +5898,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                     const SizedBox(height: Dimensions.paddingSizeExtraSmall),
                     Text(product.description!,
                         style: robotoBold.copyWith(
-                            fontSize: Dimensions.fontSizeLarge,
+                            fontSize: Dimensions.fontSizeSmall,
                             color: Colors.black)),
                     const SizedBox(height: Dimensions.paddingSizeDefault),
                     const Divider(),
@@ -5710,7 +5940,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                     }
 
                     return CustomButton(
-                      buttonText: 'Confirm Selection',
+                      buttonText: 'confirm_selection'.tr,
                       onPressed: canConfirm
                           ? () {
                               setState(() {
@@ -5760,7 +5990,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
           product.foodVariations!.isNotEmpty) ...[
         Text('variations'.tr,
             style: robotoBold.copyWith(
-                fontSize: Dimensions.fontSizeLarge, color: Colors.black)),
+                fontSize: Dimensions.fontSizeSmall, color: Colors.black)),
         const SizedBox(height: Dimensions.paddingSizeSmall),
         ListView.builder(
           shrinkWrap: true,
@@ -5834,7 +6064,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
       if (product.addOns != null && product.addOns!.isNotEmpty) ...[
         Text('addons'.tr,
             style: robotoBold.copyWith(
-                fontSize: Dimensions.fontSizeLarge, color: Colors.black)),
+                fontSize: Dimensions.fontSizeSmall, color: Colors.black)),
         const SizedBox(height: Dimensions.paddingSizeSmall),
         ListView.builder(
           shrinkWrap: true,
@@ -6039,7 +6269,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
         child: ExpansionTile(
           title: Row(
             children: [
-              Text('Usage Terms'.tr,
+              Text('usage_terms'.tr,
                   style: robotoMedium.copyWith(
                       fontSize: Dimensions.fontSizeLarge)),
               const Spacer(),
@@ -6281,7 +6511,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
               borderRadius: BorderRadius.circular(Dimensions.radiusDefault)),
           title: Row(
             children: [
-              Text('How to use card'.tr,
+              Text('how_to_use_card'.tr,
                   style: robotoMedium.copyWith(
                       fontSize: Dimensions.fontSizeLarge)),
               const Spacer(),
@@ -6336,6 +6566,99 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                   }).toList(),
                 const SizedBox(height: Dimensions.paddingSizeSmall),
               ],
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCustomerReviewSection(Item item, BuildContext context) {
+    if (item.reviews == null || item.reviews!.isEmpty) {
+      return const SizedBox();
+    }
+
+    List<Reviews> filteredReviews = item.reviews!
+        .where((review) => review.comment != null && review.comment!.isNotEmpty)
+        .toList();
+
+    if (filteredReviews.isEmpty) {
+      return const SizedBox();
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeLarge),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(Dimensions.radiusLarge),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey[Get.isDarkMode ? 800 : 200]!,
+            blurRadius: 5,
+            spreadRadius: 1,
+          )
+        ],
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(Dimensions.radiusDefault)),
+          collapsedShape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(Dimensions.radiusDefault)),
+          title: Row(
+            children: [
+              Text('Review'.tr,
+                  style: robotoMedium.copyWith(
+                      fontSize: Dimensions.fontSizeLarge)),
+              const Spacer(),
+              Text('view'.tr,
+                  style: robotoRegular.copyWith(
+                      color: Theme.of(context).primaryColor,
+                      fontSize: Dimensions.fontSizeSmall)),
+            ],
+          ),
+          childrenPadding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+          children: filteredReviews.map((review) {
+            return Padding(
+              padding:
+                  const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipOval(
+                    child: CustomImage(
+                      image: review.customer?.imageFullUrl ?? '',
+                      height: 40,
+                      width: 40,
+                      fit: BoxFit.cover,
+                      placeholder: Images.placeholder,
+                    ),
+                  ),
+                  const SizedBox(width: Dimensions.paddingSizeSmall),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${review.customer?.fName ?? ''} ${review.customer?.lName ?? ''}'
+                              .trim(),
+                          style: robotoMedium.copyWith(
+                              fontSize: Dimensions.fontSizeDefault),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          review.comment!,
+                          style: robotoMedium.copyWith(
+                            fontSize: Dimensions.fontSizeSmall,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             );
           }).toList(),
         ),
@@ -6510,7 +6833,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                     child: Text(
                       item.name ?? '',
                       style: robotoBold.copyWith(
-                          fontSize: Dimensions.fontSizeLarge,
+                          fontSize: Dimensions.fontSizeSmall,
                           color: Theme.of(context).primaryColor),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -6542,17 +6865,17 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                         children: [
                           Text(
                             (item.offerType?.toLowerCase() == 'cash back')
-                                ? 'CASHBACK'
+                                ? 'cashback_uppercase'.tr
                                 : (item.bundleType == 'gift'
-                                    ? 'BONUS'
-                                    : 'save'.tr.toUpperCase()),
+                                    ? 'bonus_uppercase'.tr
+                                    : 'save_uppercase'.tr),
                             textAlign: TextAlign.center,
                             style: robotoBold.copyWith(
                                 color: Colors.white, fontSize: 10),
                           ),
                           Text(
                             discountType == 'percent'
-                                ? '${initialDiscount.toStringAsFixed(0)}%'
+                                ? '${initialDiscount % 1 == 0 ? initialDiscount.toStringAsFixed(0) : initialDiscount.toStringAsFixed(1)}%'
                                 : PriceConverter.convertPrice(initialDiscount),
                             textAlign: TextAlign.center,
                             style: robotoBlack.copyWith(
@@ -6570,7 +6893,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                         item.actualPrice ?? item.price)
                     : 'enter_voucher_price'.tr,
                 style: robotoBold.copyWith(
-                    fontSize: Dimensions.fontSizeLarge, color: Colors.black),
+                    fontSize: Dimensions.fontSizeSmall, color: Colors.black),
               ),
               const SizedBox(height: Dimensions.paddingSizeSmall),
 
@@ -6618,7 +6941,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                     child: Text(
                       item.store?.name ?? '',
                       style: robotoBold.copyWith(
-                          fontSize: Dimensions.fontSizeLarge,
+                          fontSize: Dimensions.fontSizeSmall,
                           color: Colors.black),
                     ),
                   ),
@@ -6947,17 +7270,16 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                     (item.offerType
                                                                 ?.toLowerCase() ==
                                                             'cash back')
-                                                        ? 'CASHBACK'
-                                                        : 'save'
+                                                        ? 'cashback_uppercase'
                                                             .tr
-                                                            .toUpperCase(),
+                                                        : 'save_uppercase'.tr,
                                                     textAlign: TextAlign.center,
                                                     style: robotoBold.copyWith(
                                                         color: Colors.white,
                                                         fontSize: 10),
                                                   ),
                                                   Text(
-                                                    '${_flatVoucherBonus.toStringAsFixed(0)}%',
+                                                    '${_flatVoucherBonus % 1 == 0 ? _flatVoucherBonus.toStringAsFixed(0) : _flatVoucherBonus.toStringAsFixed(1)}%',
                                                     textAlign: TextAlign.center,
                                                     style: robotoBlack.copyWith(
                                                         color: Colors.white,
@@ -7092,7 +7414,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                       ),
                       child: Column(
                         children: [
-                          Text('Enter the Final amount shown on your bill',
+                          Text('enter_the_final_amount_shown_on_your_bill'.tr,
                               style: robotoRegular.copyWith(
                                   fontSize: Dimensions.fontSizeSmall,
                                   color: Colors.black)),
@@ -7123,7 +7445,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Your Deal',
+                                Text('your_deal'.tr,
                                     style: robotoRegular.copyWith(
                                         fontSize: Dimensions.fontSizeSmall,
                                         color: Colors.black)),
@@ -7132,7 +7454,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                 Text(
                                   _flatVoucherBonus > 0
                                       ? '${_flatVoucherBonus.toStringAsFixed(0)}% off total bill'
-                                      : 'No discount applied',
+                                      : 'no_discount_applied'.tr,
                                   style: robotoBold.copyWith(
                                       fontSize: Dimensions.fontSizeDefault,
                                       color: Colors.black),
@@ -7147,7 +7469,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Available Discount Tiers:',
+                                        'available_discount_tiers'.tr,
                                         style: robotoMedium.copyWith(
                                             fontSize: Dimensions.fontSizeSmall,
                                             color: Colors.black),
@@ -7211,7 +7533,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                   )
                                 else
                                   Text(
-                                    'No minimum spend',
+                                    'no_minimum_spend'.tr,
                                     style: robotoRegular.copyWith(
                                         fontSize: Dimensions.fontSizeExtraSmall,
                                         color: Theme.of(context).disabledColor),
@@ -7258,7 +7580,9 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                           children: [
                             Expanded(
                                 child: Text(
-                                    'Redeemables at ${item.branches!.length} ${item.branches!.length > 1 ? 'outlets' : 'outlet'}',
+                                    'redeemable_at_x_outlets'.trParams({
+                                      'count': item.branches!.length.toString()
+                                    }),
                                     style: robotoMedium.copyWith(
                                         color: Colors.black,
                                         fontSize: Dimensions.fontSizeLarge))),
@@ -7270,7 +7594,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                 decoration: BoxDecoration(
                                     color: Colors.red.withOpacity(0.1),
                                     borderRadius: BorderRadius.circular(4)),
-                                child: Text('Required',
+                                child: Text('required'.tr,
                                     style: robotoRegular.copyWith(
                                         color: Colors.red, fontSize: 10)),
                               ),
@@ -7285,7 +7609,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                     height: 400,
                                     child: Column(
                                       children: [
-                                        Text('Select Outlet',
+                                        Text('select_outlet'.tr,
                                             style: robotoBold.copyWith(
                                                 fontSize:
                                                     Dimensions.fontSizeLarge)),
@@ -7322,7 +7646,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                           _selectedBranchId =
                                                               branch.id;
                                                         });
-                                                        Get.back();
+                                                        Navigator.pop(context);
                                                       }
                                                     : null,
                                                 child: Padding(
@@ -7371,7 +7695,8 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                                                                   : (activeAt !=
                                                                           null
                                                                       ? 'Available at: $activeAt'
-                                                                      : 'Currently unavailable'),
+                                                                      : 'currently_unavailable'
+                                                                          .tr),
                                                               style: robotoRegular.copyWith(
                                                                   fontSize: 12,
                                                                   color: Theme.of(
@@ -7416,6 +7741,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                     _buildVoucherSettings(item, context),
                     _buildVoucherTerms(item, context),
                     _buildHowItWorks(item, context),
+                    _buildCustomerReviewSection(item, context),
                   ],
                 ),
               ),
@@ -7435,39 +7761,66 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('total_amount'.tr.toUpperCase(),
-                            style: robotoRegular.copyWith(
-                                fontSize: 10,
-                                color: Theme.of(context).disabledColor)),
-                        Row(
-                          children: [
-                            if (_amountController.text.isNotEmpty)
-                              Text(
-                                _formatPrice(
-                                    double.tryParse(_amountController.text) ?? 0),
-                                style: robotoMedium.copyWith(
-                                  fontSize: Dimensions.fontSizeLarge,
-                                  decoration: TextDecoration.lineThrough,
-                                  color: Theme.of(context).disabledColor,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('total_amount'.tr.toUpperCase(),
+                              style: robotoRegular.copyWith(
+                                  fontSize: 10,
+                                  color: Theme.of(context).disabledColor)),
+                          Row(
+                            children: [
+                              if (_amountController.text.isNotEmpty)
+                                Text(
+                                  _formatPrice(
+                                      double.tryParse(_amountController.text) ??
+                                          0),
+                                  style: robotoMedium.copyWith(
+                                    fontSize: Dimensions.fontSizeSmall,
+                                    decoration: TextDecoration.lineThrough,
+                                    color: Theme.of(context).disabledColor,
+                                  ),
                                 ),
-                              ),
-                            if (_amountController.text.isNotEmpty)
-                              const SizedBox(
-                                  width: Dimensions.paddingSizeExtraSmall),
-                            Text(_formatPrice(_flatVoucherPrice),
+                              if (_amountController.text.isNotEmpty)
+                                const SizedBox(
+                                    width: Dimensions.paddingSizeExtraSmall),
+                              Text(_formatPrice(_flatVoucherPrice),
+                                  style: robotoBold.copyWith(
+                                      fontSize: Dimensions.fontSizeOverLarge,
+                                      color: Theme.of(context).primaryColor)),
+                            ],
+                          ),
+                          if (item.availabilityForCurrentUser?.status ==
+                              'not_available')
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  top: Dimensions.paddingSizeExtraSmall),
+                              child: Text(
+                                'out_of_stock'.tr,
                                 style: robotoBold.copyWith(
-                                    fontSize: Dimensions.fontSizeOverLarge,
-                                    color: Theme.of(context).primaryColor)),
-                          ],
-                        ),
-                      ],
+                                    fontSize: Dimensions.fontSizeSmall,
+                                    color: Theme.of(context).colorScheme.error),
+                              ),
+                            ),
+                          if (item.availabilityForCurrentUser?.userUsage !=
+                              null)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  top: Dimensions.paddingSizeExtraSmall),
+                              child: Text(
+                                '${'remaining'.tr}: ${item.availabilityForCurrentUser!.userUsage!.remaining ?? 0}',
+                                style: robotoBold.copyWith(
+                                    fontSize: Dimensions.fontSizeSmall,
+                                    color: Colors.black),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                     CustomButton(
                       width: 150,
-                      buttonText: 'Pay Now',
+                      buttonText: 'pay_now'.tr,
                       isLoading: cartController.isLoading,
                       onPressed: () async {
                         if (!_checkAvailability(item)) {
@@ -7518,7 +7871,7 @@ class _ItemBottomSheetState extends State<ItemBottomSheet> {
 
                         if (!added) {
                           if (Get.isDialogOpen ?? false) {
-                            Get.back();
+                            Navigator.pop(context);
                           }
                           return;
                         }

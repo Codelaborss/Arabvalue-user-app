@@ -234,9 +234,7 @@ class _WebNewHomeScreenState extends State<WebNewHomeScreen> {
                             : isFood
                                 ? const WebMostPopularItemViewWidget(
                                     isFood: true, isShop: false)
-                                : isShop
-                                    ? const WebBestReviewItemViewWidget()
-                                    : const WebBestReviewItemViewWidget(),
+                                : const SizedBox(),
                         isPharmacy
                             ? const WebCommonConditionViewWidget()
                             : isFood

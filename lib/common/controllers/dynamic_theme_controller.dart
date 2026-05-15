@@ -8,13 +8,13 @@ class DynamicThemeController extends GetxController implements GetxService {
 
   DynamicThemeController({required this.authRepositoryInterface});
 
-  Color _primaryColor = const Color(0xFF039D55);
-  Color _secondaryColor = const Color(0xFF1ED7AA);
+  Color _primaryColor = const Color(0xFF002e80);
+  Color _secondaryColor = const Color(0xFF002e80);
   Color _backgroundColor = const Color(0xFFFFFFFF);
-  Color _textColor = const Color(0xFF000000);
-  Color _buttonColor = const Color(0xFF039D55);
+  Color _textColor = const Color(0xFF002e80);
+  Color _buttonColor = const Color(0xFF002e80);
   Color _buttonTextColor = const Color(0xFFFFFFFF);
-  Color _navbarColor = const Color(0xFF039D55);
+  Color _navbarColor = const Color(0xFF002e80);
   Color _navbarTextColor = const Color(0xFFFFFFFF);
 
   Color get primaryColor => _primaryColor;
@@ -221,13 +221,13 @@ class DynamicThemeController extends GetxController implements GetxService {
   }
 
   void resetToDefaults() {
-    _primaryColor = const Color(0xFF039D55);
-    _secondaryColor = const Color(0xFF1ED7AA);
+    _primaryColor = const Color(0xFF002e80);
+    _secondaryColor = const Color(0xFF002e80);
     _backgroundColor = const Color(0xFFFFFFFF);
-    _textColor = const Color(0xFF000000);
-    _buttonColor = const Color(0xFF039D55);
+    _textColor = const Color(0xFF002e80);
+    _buttonColor = const Color(0xFF002e80);
     _buttonTextColor = const Color(0xFFFFFFFF);
-    _navbarColor = const Color(0xFF039D55);
+    _navbarColor = const Color(0xFF002e80);
     _navbarTextColor = const Color(0xFFFFFFFF);
     update();
     print('====> ✅ Reset to default colors');

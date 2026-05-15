@@ -254,9 +254,11 @@ class CategoryController extends GetxController implements GetxService {
     update();
   }
 
-  void setVoucherFilter(String filter) {
+  void setVoucherFilter(String filter, {bool notify = true}) {
     _voucherFilter = filter;
-    update();
+    if (notify) {
+      update();
+    }
   }
 
   List<Item>? getFilteredItems({bool searching = false}) {

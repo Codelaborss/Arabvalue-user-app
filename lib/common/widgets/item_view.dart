@@ -91,7 +91,9 @@ class _ItemsViewState extends State<ItemsView> {
                                         ? 120
                                         : 341
                                 : ResponsiveHelper.isDesktop(context)
-                                    ? 335
+                                    ? widget.isStoreItem
+                                        ? 130
+                                        : 335
                                     : 300,
                     crossAxisCount: ResponsiveHelper.isMobile(context)
                         ? 1
@@ -99,7 +101,9 @@ class _ItemsViewState extends State<ItemsView> {
                                 widget.stores != null
                             ? 3
                             : ResponsiveHelper.isDesktop(context)
-                                ? 4
+                                ? widget.isStoreItem
+                                    ? 3
+                                    : 4
                                 : 3,
                   ),
                   physics: widget.isScrollable

@@ -34,15 +34,6 @@ class PartnerStoreCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          if (Get.find<SplashController>().moduleList != null) {
-            for (ModuleModel module
-                in Get.find<SplashController>().moduleList!) {
-              if (module.id == store.moduleId) {
-                Get.find<SplashController>().setModule(module);
-                break;
-              }
-            }
-          }
           Get.toNamed(
             RouteHelper.getStoreRoute(id: store.id, page: 'store'),
             arguments: StoreScreen(store: store, fromModule: false),
@@ -107,7 +98,7 @@ class PartnerStoreCard extends StatelessWidget {
                           isRecommended: isRecommended),
                       const SizedBox(width: Dimensions.paddingSizeExtraSmall),
                       _buildBadge(context, Icons.confirmation_number_outlined,
-                          '${store.vouchers?.length ?? 0} Offers',
+                          '${store.vouchers?.length ?? 0} ${'offers'.tr}',
                           isRecommended: isRecommended),
                     ],
                   ),

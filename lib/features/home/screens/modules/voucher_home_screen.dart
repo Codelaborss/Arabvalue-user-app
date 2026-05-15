@@ -42,15 +42,15 @@ class _VoucherHomeScreenState extends State<VoucherHomeScreen> {
 
   List<String> _getSections() {
     List<String> sections = [
-      'Hot Vouchers',
-      'Recommended Store',
-      'Recommended Vouchers',
-      'New Voucher',
-      'Best Store Nearby',
-      'Special Offer',
-      'Item You Love',
-      'Most Popular',
-      'New on 6amMart',
+      'hot_vouchers'.tr,
+      'recommended_store'.tr,
+      'recommended_vouchers'.tr,
+      'new_voucher'.tr,
+      'best_store_nearby'.tr,
+      'special_offer'.tr,
+      'item_you_love'.tr,
+      'most_popular'.tr,
+      'new_on_6ammart'.tr,
     ];
 
     // Add first 3 categories to the end
@@ -177,7 +177,7 @@ class _VoucherHomeScreenState extends State<VoucherHomeScreen> {
             child: const MostPopularItemView(isFood: false, isShop: false)),
         const HighlightWidget(),
         const TopOffersNearMe(),
-        const BestReviewItemView(),
+        // const BestReviewItemView(),
         const JustForYouView(),
         Container(
             key: _newOnMartKey,

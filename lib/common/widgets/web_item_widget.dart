@@ -459,6 +459,41 @@ class WebItemWidget extends StatelessWidget {
     List<Color> colors = _getVoucherColors(item!.voucherIds);
     Color mixedColor = Color.lerp(colors[0], colors[1], 0.3) ?? colors[0];
 
+    double displayDiscount = discount ?? 0;
+    String displayDiscountType = discountType ?? 'percent';
+    String saveText = (item!.offerType?.toLowerCase() == 'cash back')
+        ? 'cashback_uppercase'.tr
+        : (item!.bundleType == 'gift'
+            ? 'bonus_uppercase'.tr
+            : 'save_uppercase'.tr);
+
+    if ((Get.currentRoute.contains(RouteHelper.categoryItem) ||
+            Get.currentRoute.contains(RouteHelper.store)) &&
+        item!.commissionPaidBy == 'customer' &&
+        (item!.storeCommission ?? 0) > 0 &&
+        item!.bundleType != 'gift') {
+      if (item!.bundleType == 'simple x') {
+        saveText = 'save_uppercase'.tr;
+        if (displayDiscountType == 'percent') {
+          displayDiscount = displayDiscount -
+              (1 - displayDiscount / 100) * item!.storeCommission!;
+        } else {
+          double priceForFormula = item!.actualPrice ?? item!.price ?? 100;
+          if (priceForFormula > 0) {
+            double afterD = priceForFormula - displayDiscount;
+            double comm = afterD * (item!.storeCommission! / 100);
+            displayDiscount =
+                ((displayDiscount - comm) / priceForFormula) * 100;
+            displayDiscountType = 'percent';
+          }
+        }
+      } else {
+        saveText = (item!.offerType?.toLowerCase() == 'cash back')
+            ? 'cash_back_upto'.tr
+            : 'save_upto'.tr;
+      }
+    }
+
     return Padding(
         padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
         child: ClipPath(
@@ -624,13 +659,51 @@ class WebItemWidget extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Expanded(
-                                  child: Text(
-                                    item!.name ?? '',
-                                    style: robotoBold.copyWith(
-                                        fontSize: Dimensions.fontSizeDefault,
-                                        color: Theme.of(context).primaryColor),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item!.name ?? '',
+                                        style: robotoBold.copyWith(
+                                            fontSize:
+                                                Dimensions.fontSizeDefault,
+                                            color:
+                                                Theme.of(context).primaryColor),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      if (item!.availabilityForCurrentUser
+                                              ?.status ==
+                                          'not_available')
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 2),
+                                          child: Text(
+                                            'out_of_stock'.tr,
+                                            style: robotoBold.copyWith(
+                                                fontSize:
+                                                    Dimensions.fontSizeDefault,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .error),
+                                          ),
+                                        ),
+                                      if (item!.availabilityForCurrentUser
+                                              ?.userUsage !=
+                                          null)
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 2),
+                                          child: Text(
+                                            '${'remaining'.tr}: ${item!.availabilityForCurrentUser!.userUsage!.remaining ?? 0}',
+                                            style: robotoBold.copyWith(
+                                                fontSize:
+                                                    Dimensions.fontSizeDefault,
+                                                color: Colors.black),
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                 ),
                                 const SizedBox(width: 10),
@@ -649,20 +722,15 @@ class WebItemWidget extends StatelessWidget {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                        (item!.offerType?.toLowerCase() ==
-                                                'cash back')
-                                            ? 'CASH BACK'
-                                            : (item!.bundleType == 'gift'
-                                                ? 'BONUS'
-                                                : 'save'.tr.toUpperCase()),
+                                        saveText,
                                         style: robotoBold.copyWith(
                                             color: Colors.white, fontSize: 10),
                                       ),
                                       Text(
-                                        discountType == 'amount'
+                                        displayDiscountType == 'amount'
                                             ? PriceConverter.convertPrice(
-                                                discount)
-                                            : '${discount?.toInt()}%',
+                                                displayDiscount)
+                                            : '${displayDiscount % 1 == 0 ? displayDiscount.toInt() : displayDiscount.toStringAsFixed(1)}%',
                                         style: robotoBlack.copyWith(
                                             color: Colors.white,
                                             fontSize: 22,

@@ -49,6 +49,7 @@ class BottomSection extends StatelessWidget {
   final double bonus;
   final bool isVoucherItem;
   final bool isFlatDiscount;
+  final double commissionAmount;
 
   const BottomSection(
       {super.key,
@@ -80,7 +81,8 @@ class BottomSection extends StatelessWidget {
       this.isGiftVoucher = false,
       this.bonus = 0,
       this.isVoucherItem = false,
-      this.isFlatDiscount = false});
+      this.isFlatDiscount = false,
+      this.commissionAmount = 0});
 
   /// Formats a price without rounding — used for gift voucher bonus amounts
   /// so that e.g. 2.5 displays as "2.5" instead of being floored/rounded to "3".
@@ -293,11 +295,11 @@ class BottomSection extends StatelessWidget {
                           children: [
                             Text(
                                 isFlatDiscount
-                                    ? 'Total Bill'
+                                    ? 'total_bill'.tr
                                     : isGiftVoucher
-                                        ? 'Card Value:'
+                                        ? '${'card_value'.tr}:'
                                         : isVoucherItem
-                                            ? 'Voucher Value'
+                                            ? 'voucher_value'.tr
                                             : module.addOn!
                                                 ? 'subtotal'.tr
                                                 : 'item_price'.tr,
@@ -317,7 +319,7 @@ class BottomSection extends StatelessWidget {
                             children: [
                               Text(
                                   isGiftVoucher
-                                      ? 'Bonus Value:'
+                                      ? '${'bonus_value'.tr}:'
                                       : isCashBack
                                           ? 'cashback'.tr
                                           : 'discount'.tr,
@@ -331,12 +333,32 @@ class BottomSection extends StatelessWidget {
                                       color: Colors.black54),
                                   textDirection: TextDirection.ltr),
                             ]),
+                      // Commission Charge Row (Hidden from UI but kept in logic)
+                      /*if (commissionAmount > 0) ...[
+                        const SizedBox(height: Dimensions.paddingSizeSmall),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Commission Charge:',
+                              style:
+                                  robotoRegular.copyWith(color: Colors.black54),
+                            ),
+                            Text(
+                              '(+) ${_formatExactPrice(commissionAmount)}',
+                              style: robotoRegular.copyWith(
+                                  color: Colors.orange.shade700),
+                              textDirection: TextDirection.ltr,
+                            ),
+                          ],
+                        ),
+                      ],*/
                       if (isGiftVoucher) ...[
                         const SizedBox(height: Dimensions.paddingSizeSmall),
                         Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Total to pay:',
+                              Text('${'total_to_pay'.tr}:',
                                   style: robotoBold.copyWith(
                                       color: Theme.of(context).primaryColor)),
                               Text(_formatGiftPrice(subTotal),
@@ -350,7 +372,7 @@ class BottomSection extends StatelessWidget {
                         Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Amount to Pay:',
+                              Text('${'amount_to_pay'.tr}:',
                                   style: robotoBold.copyWith(
                                       color: Theme.of(context).primaryColor)),
                               Text(_formatExactPrice(total),

@@ -6,13 +6,13 @@ import 'package:sixam_mart/util/app_constants.dart';
 
 ThemeData light({Color? color}) {
   // Default colors
-  Color primaryColor = color ?? const Color(0xFF039D55);
-  Color secondaryColor = const Color(0xFF1ED7AA);
+  Color primaryColor = color ?? const Color(0xFF002e80);
+  Color secondaryColor = const Color(0xFF002e80);
   Color backgroundColor = const Color(0xFFFFFFFF);
-  Color textColor = const Color(0xFF000000);
-  Color buttonColor = const Color(0xFF039D55);
+  Color textColor = const Color(0xFF4f14f0);
+  Color buttonColor = const Color(0xFF002e80);
   Color buttonTextColor = const Color(0xFFFFFFFF);
-  Color navbarColor = const Color(0xFF039D55);
+  Color navbarColor = const Color(0xFF002e80);
   Color navbarTextColor = const Color(0xFFFFFFFF);
 
   try {

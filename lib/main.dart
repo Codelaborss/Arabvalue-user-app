@@ -108,7 +108,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _route() async {
-    await _fetchClientTheme();
+    // Removed _fetchClientTheme() call as it's now called after login
 
     if (GetPlatform.isWeb) {
       Get.find<SplashController>().initSharedData();
@@ -131,75 +131,6 @@ class _MyAppState extends State<MyApp> {
           loadLandingData: (GetPlatform.isWeb &&
               AddressHelper.getUserAddressFromSharedPref() == null),
           fromMainFunction: true);
-    }
-  }
-
-  Future<void> _fetchClientTheme() async {
-    try {
-      print('====> 🔍 Fetching Client Theme from API...');
-
-      final response = await http.get(
-        Uri.parse('https://fortestingweb.com/api/v1/client/8'),
-      );
-
-      if (response.statusCode == 200) {
-        Map<String, dynamic> data = jsonDecode(response.body);
-
-        print('====> ✅ Client API Response Received');
-
-        if (data['apps'] != null && data['apps'].isNotEmpty) {
-          List<dynamic> apps = data['apps'];
-
-          var targetApp = apps.firstWhere(
-            (app) => app['status'] == 'active',
-            orElse: () => apps[0],
-          );
-
-          print('====> 📱 App Found: ${targetApp['app_name']}');
-
-          if (targetApp['themes'] != null && targetApp['themes'].isNotEmpty) {
-            List<dynamic> themes = targetApp['themes'];
-
-            var activeTheme = themes.firstWhere(
-              (theme) {
-                var colorCodes = theme['color_codes'] ?? theme['colorCodes'];
-                return theme['status'] == 'active' &&
-                    colorCodes != null &&
-                    colorCodes.isNotEmpty;
-              },
-              orElse: () => themes[0],
-            );
-
-            print(
-                '====> 🎨 Active Theme Selected for Application: ${activeTheme['name']}');
-
-            String appDataJson = jsonEncode(targetApp);
-            await Get.find<AuthController>()
-                .authServiceInterface
-                .saveClientAppData(appDataJson);
-
-            String themesJson = jsonEncode(themes);
-            await Get.find<AuthController>()
-                .authServiceInterface
-                .saveClientAppThemes(themesJson);
-
-            print('====> ✅ Client Theme Saved to Priority 2!');
-
-            if (Get.isRegistered<DynamicThemeController>()) {
-              await Get.find<DynamicThemeController>().reloadTheme();
-              print('====> ✅ Theme Applied from Client API!');
-            }
-          } else {
-            print('====> ⚠️ No themes found in Client API');
-          }
-        } else {
-          print('====> ⚠️ No apps found in Client API response');
-        }
-      } else {
-        print('====> ❌ Client API call failed: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('====> ⚠️ Client theme fetch failed: $e');
     }
   }
 

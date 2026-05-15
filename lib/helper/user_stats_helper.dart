@@ -12,7 +12,7 @@ class UserStatsHelper extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<ProfileController>(builder: (profileController) {
       // User ka first name ya full name
-      String userName = profileController.userInfoModel?.fName ?? 'User';
+      String userName = profileController.userInfoModel?.fName ?? 'user'.tr;
 
       return Container(
         padding: const EdgeInsets.symmetric(
@@ -25,7 +25,7 @@ class UserStatsHelper extends StatelessWidget {
           children: [
             // Hello User Name
             Text(
-              'Hello $userName',
+              '${'hello'.tr} $userName',
               style: robotoBold.copyWith(
                 fontSize: 25,
                 fontWeight: FontWeight.bold,
@@ -52,7 +52,7 @@ class UserStatsHelper extends StatelessWidget {
                     flex: 10,
                     child: _buildStatItem(
                       context: context,
-                      title: 'You\'ve saved',
+                      title: 'you_have_saved'.tr,
                       value: (profileController.userInfoModel?.totalSaving ?? 0)
                           .toStringAsFixed(2),
                       currency: Get.find<SplashController>()
@@ -73,7 +73,7 @@ class UserStatsHelper extends StatelessWidget {
                     flex: 13,
                     child: _buildStatItem(
                       context: context,
-                      title: 'Wallet',
+                      title: 'wallet'.tr,
                       value:
                           (profileController.userInfoModel?.walletBalance ?? 0)
                               .toStringAsFixed(2),
@@ -95,7 +95,7 @@ class UserStatsHelper extends StatelessWidget {
                     flex: 7,
                     child: _buildStatItem(
                       context: context,
-                      title: 'Points',
+                      title: 'points'.tr,
                       value:
                           (profileController.userInfoModel?.loyaltyPoint ?? 0)
                               .toString(),

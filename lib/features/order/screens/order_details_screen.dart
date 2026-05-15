@@ -119,7 +119,7 @@ class OrderDetailsScreenState extends State<OrderDetailsScreen> {
               if (widget.fromNotification || widget.fromOfflinePayment) {
                 Get.offAllNamed(RouteHelper.getInitialRoute());
               } else {
-                Get.back();
+                Navigator.pop(context);
               }
             }),
         endDrawer: const MenuDrawer(),
@@ -422,8 +422,13 @@ class OrderDetailsScreenState extends State<OrderDetailsScreen> {
                           _isCashOnDeliveryActive!)
                       ? CustomButton(
                           buttonText: 'switch_to_cod'.tr,
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: Dimensions.paddingSizeDefault,
+                          width: ResponsiveHelper.isDesktop(context)
+                              ? 160
+                              : Dimensions.webMaxWidth,
+                          margin: EdgeInsets.symmetric(
+                              horizontal: ResponsiveHelper.isDesktop(context)
+                                  ? 0
+                                  : Dimensions.paddingSizeDefault,
                               vertical: Dimensions.paddingSizeSmall),
                           onPressed: () {
                             Get.dialog(ConfirmationDialog(
@@ -470,6 +475,9 @@ class OrderDetailsScreenState extends State<OrderDetailsScreen> {
                           child: CustomButton(
                             isBorder: true,
                             color: Colors.transparent,
+                            width: ResponsiveHelper.isDesktop(context)
+                                ? 160
+                                : Dimensions.webMaxWidth,
                             onPressed: () {
                               orderController.setOrderCancelReason('');
                               Get.dialog(CancellationDialogueWidget(
@@ -515,9 +523,12 @@ class OrderDetailsScreenState extends State<OrderDetailsScreen> {
                               null)))
           ? Center(
               child: Container(
-                width: Dimensions.webMaxWidth,
+                width: ResponsiveHelper.isDesktop(context)
+                    ? 160
+                    : Dimensions.webMaxWidth,
                 padding: ResponsiveHelper.isDesktop(context)
-                    ? null
+                    ? const EdgeInsets.only(
+                        bottom: Dimensions.paddingSizeDefault)
                     : const EdgeInsets.symmetric(
                         horizontal: Dimensions.paddingSizeDefault,
                         vertical: Dimensions.paddingSizeSmall),
@@ -526,12 +537,22 @@ class OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   onPressed: () {
                     List<OrderDetailsModel> orderDetailsList = [];
                     List<int?> orderDetailsIdList = [];
+                    bool isVoucherOrderLocal =
+                        _isVoucherOrder(orderController.orderDetails);
+
                     for (var orderDetail in orderController.orderDetails!) {
                       if (orderDetail.itemDetails != null &&
                           !orderDetailsIdList
                               .contains(orderDetail.itemDetails!.id)) {
-                        orderDetailsList.add(orderDetail);
-                        orderDetailsIdList.add(orderDetail.itemDetails!.id);
+                        if (isVoucherOrderLocal) {
+                          if (orderDetail.itemDetails!.type == 'voucher') {
+                            orderDetailsList.add(orderDetail);
+                            orderDetailsIdList.add(orderDetail.itemDetails!.id);
+                          }
+                        } else {
+                          orderDetailsList.add(orderDetail);
+                          orderDetailsIdList.add(orderDetail.itemDetails!.id);
+                        }
                       }
                     }
                     Get.toNamed(RouteHelper.getReviewRoute(),
@@ -553,6 +574,9 @@ class OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
                 child: CustomButton(
                   buttonText: 'switch_to_cash_on_delivery'.tr,
+                  width: ResponsiveHelper.isDesktop(context)
+                      ? 160
+                      : Dimensions.webMaxWidth,
                   onPressed: () {
                     Get.dialog(ConfirmationDialog(
                         icon: Images.warning,
@@ -663,7 +687,7 @@ class OrderDetailsScreenState extends State<OrderDetailsScreen> {
     if (hasVoucherInfo) {
       expandableSections.add(
         ExpandableVoucherSection(
-          title: 'Voucher Info',
+          title: 'voucher_info'.tr,
           voucherProducts: voucherProducts,
           orderProductDetails:
               orderProductItems.isNotEmpty ? orderProductItems : null,
@@ -681,7 +705,7 @@ class OrderDetailsScreenState extends State<OrderDetailsScreen> {
     if (item.bundleType == 'gift') {
       expandableSections.add(
         ExpandableVoucherSection(
-          title: 'Voucher Info',
+          title: 'voucher_info'.tr,
           item: item,
           order: order,
           bundleType: item.bundleType,
@@ -696,8 +720,8 @@ class OrderDetailsScreenState extends State<OrderDetailsScreen> {
     if (branches != null && branches.isNotEmpty) {
       expandableSections.add(
         ExpandableVoucherSection(
-          title:
-              'Redeemable at ${branches.length} ${branches.length > 1 ? 'outlets' : 'outlet'}',
+          title: 'redeemable_at_x_outlets'
+              .trParams({'count': branches.length.toString()}),
           branches: branches,
           type: VoucherSectionType.branches,
           item: item,
@@ -709,7 +733,7 @@ class OrderDetailsScreenState extends State<OrderDetailsScreen> {
     if (voucherSettings != null) {
       expandableSections.add(
         ExpandableVoucherSection(
-          title: 'Usage Term',
+          title: 'usage_terms'.tr,
           voucherSettings: voucherSettings,
           type: VoucherSectionType.usageTerms,
         ),
@@ -720,7 +744,7 @@ class OrderDetailsScreenState extends State<OrderDetailsScreen> {
     if (howItWorks != null && howItWorks.isNotEmpty) {
       expandableSections.add(
         ExpandableVoucherSection(
-          title: 'How to use card',
+          title: 'how_to_use_card'.tr,
           howItWorks: howItWorks,
           type: VoucherSectionType.howToUse,
         ),

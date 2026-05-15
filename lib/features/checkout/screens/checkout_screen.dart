@@ -41,8 +41,9 @@ import 'package:sixam_mart/features/checkout/widgets/top_section.dart';
 import 'package:flutter/material.dart';
 
 String _formatExactPrice(double value) {
-  bool isRightSide = Get.find<SplashController>().configModel!.currencySymbolDirection ==
-      'right';
+  bool isRightSide =
+      Get.find<SplashController>().configModel!.currencySymbolDirection ==
+          'right';
   String symbol = Get.find<SplashController>().configModel!.currencySymbol!;
   String priceStr = value.toStringAsFixed(value % 1 == 0 ? 0 : 2);
   return isRightSide ? '$priceStr $symbol' : '$symbol$priceStr';
@@ -168,7 +169,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
             .initCheckoutData(_cartList![0]!.item!.storeId);
 
         // Auto-select Delivery Mode for Vouchers
-        if (_cartList![0]!.item!.type == 'voucher') {
+        if (_cartList![0]!.item!.type == 'voucher' || widget.isGiftVoucher) {
           String? voucherId = _cartList![0]!.item!.voucherIds;
           print('DEBUG: checking voucherId: "$voucherId"');
 
@@ -194,7 +195,8 @@ class CheckoutScreenState extends State<CheckoutScreen> {
       if (widget.cartList != null &&
           widget.cartList!.isNotEmpty &&
           widget.cartList![0]?.item != null &&
-          widget.cartList![0]!.item!.type == 'voucher') {
+          (widget.cartList![0]!.item!.type == 'voucher' ||
+              widget.isGiftVoucher)) {
         String? voucherId = widget.cartList![0]!.item!.voucherIds;
         print('DEBUG (BuyNow): checking voucherId: "$voucherId"');
 
@@ -382,6 +384,12 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                   double? displayDiscount = discount;
                   double couponDiscount = couponController.discount ?? 0;
 
+                  double subTotal = _calculateSubTotal(
+                      price: price,
+                      addOns: addOns,
+                      variations: variations,
+                      cartList: _cartList);
+
                   // ── BOGO Free Discount ─────────────────────────────────
                   // For bogo_free vouchers: the cheaper product is free.
                   // Add min(priceA, priceB) to both discount AND subTotal.
@@ -431,10 +439,27 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
                         double priceA = effectivePrice(productItems[0]);
                         double priceB = effectivePrice(productItems[1]);
-                        bogoFreeDiscount = priceA <= priceB ? priceA : priceB;
+                        double originalBogoFreeDiscount =
+                            priceA <= priceB ? priceA : priceB;
+                        bogoFreeDiscount = originalBogoFreeDiscount;
+
+                        // Adjust BOGO discount for Customer Commission
+                        double expensivePrice =
+                            priceA > priceB ? priceA : priceB;
+                        if (checkoutController.store?.commissionPaidBy ==
+                                'customer' &&
+                            checkoutController.store?.comission != null &&
+                            checkoutController.store!.comission! > 0) {
+                          double commissionAmount = expensivePrice *
+                              (checkoutController.store!.comission! / 100);
+                          bogoFreeDiscount =
+                              bogoFreeDiscount - commissionAmount;
+                          if (bogoFreeDiscount < 0) bogoFreeDiscount = 0;
+                        }
 
                         displayDiscount =
                             (displayDiscount ?? 0) + bogoFreeDiscount;
+                        subTotal = subTotal + originalBogoFreeDiscount;
 
                         if (kDebugMode) {
                           print(
@@ -480,16 +505,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                     isCashBackVoucher = true;
                   }
 
-                  double subTotal = _calculateSubTotal(
-                      price: price,
-                      addOns: addOns,
-                      variations: variations,
-                      cartList: _cartList);
-
-                  // For BOGO free: add the free item's price to subTotal display
-                  if (bogoFreeDiscount > 0) {
-                    subTotal = subTotal + bogoFreeDiscount;
-                  }
+                  // BOGO subTotal update is now handled inside the BOGO block above using originalBogoFreeDiscount
 
                   double referralDiscount = _calculateReferralDiscount(
                       subTotal, discount, couponDiscount);
@@ -589,6 +605,50 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
                                       if (voucherDiscount != null &&
                                           voucherDiscount > 0) {
+                                        // Adjust for Customer Commission in Tax Payload
+                                        if (checkoutController
+                                                    .store?.commissionPaidBy ==
+                                                'customer' &&
+                                            checkoutController
+                                                    .store?.comission !=
+                                                null &&
+                                            checkoutController
+                                                    .store!.comission! >
+                                                0) {
+                                          double priceForFormula =
+                                              originalPrice;
+                                          if (priceForFormula == 0 &&
+                                              cart.item!.bundleType ==
+                                                  'simple x') {
+                                            priceForFormula =
+                                                cart.item!.actualPrice ??
+                                                    cart.item!.price ??
+                                                    0;
+                                          }
+
+                                          if (priceForFormula > 0) {
+                                            double dAmount = 0;
+                                            if (voucherDiscountType ==
+                                                'percent') {
+                                              dAmount = priceForFormula *
+                                                  (voucherDiscount / 100);
+                                            } else {
+                                              dAmount = voucherDiscount;
+                                            }
+                                            double afterD =
+                                                priceForFormula - dAmount;
+                                            double comm = afterD *
+                                                (checkoutController
+                                                        .store!.comission! /
+                                                    100);
+                                            voucherDiscount =
+                                                ((dAmount - comm) /
+                                                        priceForFormula) *
+                                                    100;
+                                            voucherDiscountType = 'percent';
+                                          }
+                                        }
+
                                         finalPrice =
                                             PriceConverter.convertWithDiscount(
                                                   originalPrice,
@@ -690,6 +750,8 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                               cart.item!.bundleType != 'bogo_free' &&
                               cart.item!.bundleType != 'simple x' &&
                               cart.item!.bundleType != 'mix_match' &&
+                              cart.item!.bundleType != 'gift' &&
+                              cart.giftDetails == null &&
                               !(cart.item!.product?.isNotEmpty ?? false)) {
                             hasFlatVoucher = true;
                             break;
@@ -819,6 +881,100 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                       isFlatDiscount = true;
                     }
                   }
+
+                  // ── Commission Amount Calculation (Checkout) ─────────────
+                  // When commission_paid_by == 'customer', calculate the
+                  // commission portion that the customer is covering so we
+                  // can display it as a separate line item in the UI.
+                  //
+                  // Logic: Identify the 'Net Amount' (Price - Discount) that
+                  // belongs to vouchers. We do this by taking the total net
+                  // amount and subtracting the non-voucher part.
+                  double commissionAmount = 0;
+                  if (checkoutController.store?.comission != null &&
+                      checkoutController.store!.comission! > 0 &&
+                      _cartList != null) {
+                    double commRate = checkoutController.store!.comission!;
+
+                    double totalNetAmount = subTotal - displayDiscount;
+                    double nonVoucherNetAmount = 0;
+                    double totalAddOnPrice = 0;
+                    double giftCommission = 0;
+
+                    for (CartModel? cart in _cartList!) {
+                      if (cart == null || cart.item == null) continue;
+
+                      if (cart.addOns != null && cart.addOns!.isNotEmpty) {
+                        for (int i = 0; i < cart.addOns!.length; i++) {
+                          totalAddOnPrice += (cart.addOns![i].price! *
+                              cart.addOnIds![i].quantity!);
+                        }
+                      }
+
+                      bool isGift = cart.item!.bundleType == 'gift';
+                      bool isVoucherPart = cart.item!.type == 'voucher' ||
+                          cart.cartGroupId != null;
+
+                      if (isGift) {
+                        // SPECIAL LOGIC FOR GIFTS ONLY: Direct calculation from API rate on SubTotal
+                        double giftRate =
+                            cart.item!.storeCommission ?? commRate;
+                        double itemP = _calculatePrice(
+                            store: checkoutController.store, cartList: [cart]);
+
+                        giftCommission += (itemP * giftRate) / 100;
+                      } else if (!isVoucherPart) {
+                        double itemP = _calculatePrice(
+                            store: checkoutController.store, cartList: [cart]);
+                        double itemD = _calculateDiscountPrice(
+                          store: checkoutController.store,
+                          cartList: [cart],
+                          price: itemP,
+                          addOns: 0,
+                          calStoreDiscount: true,
+                        );
+                        nonVoucherNetAmount += (itemP - itemD);
+                      }
+                    }
+
+                    // For standard vouchers, we go back to using Net Amount (SubTotal - Discount)
+                    double voucherNetAmount =
+                        totalNetAmount - nonVoucherNetAmount - totalAddOnPrice;
+
+                    // Subtract gift net amount from standard voucher base to avoid double counting
+                    for (CartModel? cart in _cartList!) {
+                      if (cart?.item?.bundleType == 'gift') {
+                        double itemP = _calculatePrice(
+                            store: checkoutController.store, cartList: [cart]);
+                        double itemD = _calculateDiscountPrice(
+                            store: checkoutController.store,
+                            cartList: [cart],
+                            price: itemP,
+                            addOns: 0,
+                            calStoreDiscount: true);
+                        voucherNetAmount -= (itemP - itemD);
+                      }
+                    }
+
+                    if (voucherNetAmount > 0) {
+                      if (checkoutController.store?.commissionPaidBy ==
+                          'customer') {
+                        // Reverse formula for standard customer-paid vouchers
+                        commissionAmount =
+                            (voucherNetAmount * commRate) / (100 + commRate);
+                      } else {
+                        // Direct formula for store-paid vouchers
+                        commissionAmount = (voucherNetAmount * commRate) / 100;
+                      }
+                    }
+
+                    // Add the specially calculated Gift commission (SubTotal based)
+                    commissionAmount += giftCommission;
+
+                    commissionAmount =
+                        double.parse(commissionAmount.toStringAsFixed(2));
+                  }
+                  // ────────────────────────────────────────────────────────
 
                   double total = _calculateTotal(
                     subTotal: subTotal,
@@ -1001,6 +1157,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                                                       isPrescriptionRequired,
                                                       couponDiscount,
                                                       referralDiscount,
+                                                      commissionAmount,
                                                       isCashBack:
                                                           isCashBackVoucher,
                                                       bonusValue: giftBonus,
@@ -1025,6 +1182,8 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                                                             _cartList),
                                                     isFlatDiscount:
                                                         isFlatDiscount,
+                                                    commissionAmount:
+                                                        commissionAmount,
                                                   )),
                                             ]),
                                       )
@@ -1126,6 +1285,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                                                 isPrescriptionRequired,
                                                 couponDiscount,
                                                 referralDiscount,
+                                                commissionAmount,
                                                 isCashBack: isCashBackVoucher,
                                                 bonusValue: giftBonus,
                                               ),
@@ -1145,6 +1305,8 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                                               isVoucherItem:
                                                   _isVoucherItem(_cartList),
                                               isFlatDiscount: isFlatDiscount,
+                                              commissionAmount:
+                                                  commissionAmount,
                                             )
                                           ]),
                               )),
@@ -1164,6 +1326,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                                     isPrescriptionRequired,
                                     couponDiscount,
                                     referralDiscount,
+                                    commissionAmount,
                                     isCashBack: isCashBackVoucher,
                                     bonusValue: giftBonus,
                                     isSticky: true,
@@ -1194,6 +1357,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
       bool isPrescriptionRequired,
       double couponDiscount,
       double referralDiscount,
+      double commissionAmount,
       {bool isSticky = false,
       bool isCashBack = false,
       double bonusValue = 0}) {
@@ -1729,6 +1893,8 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                         cart.item!.bundleType != 'bogo_free' &&
                         cart.item!.bundleType != 'simple x' &&
                         cart.item!.bundleType != 'mix_match' &&
+                        cart.item!.bundleType != 'gift' &&
+                        cart.giftDetails == null &&
                         !(cart.item!.product?.isNotEmpty ?? false)) {
                       hasFlatVoucher = true;
                       break;
@@ -1748,6 +1914,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                           ? null
                           : DateConverter.dateToDateAndTime(scheduleEndDate),
                   orderAmount: orderAmountForAPI,
+                  commissionAmount: commissionAmount,
                   orderNote: checkoutController.noteController.text,
                   orderType: hasFlatVoucher ? "" : checkoutController.orderType,
                   paymentMethod: checkoutController.paymentMethodIndex == 0
@@ -1814,6 +1981,13 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                   createNewUser: checkoutController.isCreateAccount ? 1 : 0,
                   password: guestPasswordController.text,
                 );
+
+                if (kDebugMode) {
+                  print(
+                      '[COMMISSION_API_CHECK] 🚀 Commission in Body: $commissionAmount');
+                  print(
+                      '[COMMISSION_API_CHECK] 📦 Full JSON: ${placeOrderBody.toJson()['commission_amount']}');
+                }
 
                 if (checkoutController.paymentMethodIndex == 3) {
                   Get.toNamed(RouteHelper.getOfflinePaymentScreen(
@@ -1906,7 +2080,8 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                               color: Theme.of(context).disabledColor)),
                       Row(children: [
                         Text(
-                          _formatExactPrice(checkoutController.viewTotalPrice ?? 0),
+                          _formatExactPrice(
+                              checkoutController.viewTotalPrice ?? 0),
                           style: robotoBold.copyWith(
                               fontSize: Dimensions.fontSizeExtraLarge,
                               color: Theme.of(context).primaryColor),
@@ -1956,8 +2131,9 @@ class CheckoutScreenState extends State<CheckoutScreen> {
   }
 
   String _formatExactPrice(double value) {
-    bool isRightSide = Get.find<SplashController>().configModel!.currencySymbolDirection ==
-        'right';
+    bool isRightSide =
+        Get.find<SplashController>().configModel!.currencySymbolDirection ==
+            'right';
     String symbol = Get.find<SplashController>().configModel!.currencySymbol!;
     String priceStr = value.toStringAsFixed(value % 1 == 0 ? 0 : 2);
     return isRightSide ? '$priceStr $symbol' : '$symbol$priceStr';
@@ -2074,24 +2250,63 @@ class CheckoutScreenState extends State<CheckoutScreen> {
     if (cartList != null) {
       for (var cartModel in cartList) {
         if (cartModel != null && cartModel.item != null) {
+          double? discount = cartModel.item!.discount;
+          String? discountType = cartModel.item!.discountType;
+
+          bool isBogoGroup = false;
+          bool isMixMatchGroup = false;
+          bool isVoucherGroup = false;
+          if (cartModel.cartGroupId != null) {
+            for (var c in cartList) {
+              if (c != null &&
+                  c.cartGroupId == cartModel.cartGroupId &&
+                  c.item?.type == 'voucher') {
+                isVoucherGroup = true;
+                if (c.item?.bundleType == 'bogo_free') isBogoGroup = true;
+                if (c.item?.bundleType == 'mix_match') isMixMatchGroup = true;
+              }
+            }
+          }
+
+          bool isBogoVoucher = cartModel.item!.type == 'voucher' &&
+              cartModel.item!.bundleType == 'bogo_free';
+
+          // Adjust for Customer Commission
+          if (store != null &&
+              store.commissionPaidBy == 'customer' &&
+              store.comission != null &&
+              store.comission! > 0 &&
+              discount != null &&
+              discount > 0 &&
+              !isBogoGroup &&
+              !isBogoVoucher) {
+            if (discountType == 'percent') {
+              // Price-independent formula for percentage discounts:
+              discount = discount - (1 - discount / 100) * store.comission!;
+              discountType = 'percent';
+            } else {
+              // For amount discounts, we still need a reference price
+              double priceForFormula = (cartModel.item!.bundleType ==
+                      'simple x')
+                  ? (cartModel.item!.actualPrice ?? cartModel.item!.price ?? 0)
+                  : (cartModel.price != null && cartModel.price != 0)
+                      ? cartModel.price!
+                      : (cartModel.item!.price ??
+                          (cartModel.item!.actualPrice ?? 100));
+
+              if (priceForFormula > 0) {
+                double dAmount = discount;
+                double afterD = priceForFormula - dAmount;
+                double comm = afterD * (store.comission! / 100);
+                discount = ((dAmount - comm) / priceForFormula) * 100;
+                discountType = 'percent';
+              }
+            }
+          }
+
           if (Get.find<SplashController>()
               .getModuleConfig(cartModel.item!.moduleType)
               .newVariation!) {
-            bool isBogoGroup = false;
-            bool isMixMatchGroup = false;
-            bool isVoucherGroup = false;
-            if (cartModel.cartGroupId != null) {
-              for (var c in cartList) {
-                if (c != null &&
-                    c.cartGroupId == cartModel.cartGroupId &&
-                    c.item?.type == 'voucher') {
-                  isVoucherGroup = true;
-                  if (c.item?.bundleType == 'bogo_free') isBogoGroup = true;
-                  if (c.item?.bundleType == 'mix_match') isMixMatchGroup = true;
-                }
-              }
-            }
-
             bool isVoucher = cartModel.item!.type == 'voucher';
             bool isFlatVoucher = isVoucher &&
                 (cartModel.type == 'Flat discount' ||
@@ -2132,14 +2347,16 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
             // Hide base price for bundle voucher parent (sum comes from products)
             if (isVoucher &&
-                (isSimpleBundleVoucher || isMixMatchVoucher || isBogoGroup)) {
+                (isSimpleBundleVoucher ||
+                    isMixMatchVoucher ||
+                    isBogoGroup ||
+                    isBogoVoucher)) {
               p = 0;
             }
 
             // Price logic for nested items
             if (isVoucherNestedProduct) {
-              if (cartModel.item!.foodVariations != null &&
-                  cartModel.item!.foodVariations!.isNotEmpty) {
+              if (cartModel.item!.foodVariations != null) {
                 // If variations exist, they provide the price in _calculateVariationPrice
                 p = 0;
               } else if ((cartModel.price == null || cartModel.price == 0)) {
@@ -2304,6 +2521,48 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
         double? discount = cartModel.item!.discount;
         String? discountType = cartModel.item!.discountType;
+
+        bool isBogoVoucher = cartModel.item!.type == 'voucher' &&
+            cartModel.item!.bundleType == 'bogo_free';
+
+        // Adjust for Customer Commission
+        if (store.commissionPaidBy == 'customer' &&
+            store.comission != null &&
+            store.comission! > 0 &&
+            discount != null &&
+            discount > 0 &&
+            !isBogoGroup &&
+            !isBogoVoucher) {
+          if (discountType == 'percent') {
+            // Price-independent formula for percentage discounts:
+            discount = discount - (1 - discount / 100) * store.comission!;
+            discountType = 'percent';
+          } else {
+            // For amount discounts, we still need a reference price
+            double priceForFormula = (cartModel.item!.bundleType == 'simple x')
+                ? (cartModel.item!.actualPrice ?? cartModel.item!.price ?? 0)
+                : (cartModel.price != null && cartModel.price != 0)
+                    ? cartModel.price!
+                    : (cartModel.item!.price ??
+                        (cartModel.item!.actualPrice ?? 100));
+
+            if (priceForFormula > 0) {
+              double dAmount = discount;
+              double afterD = priceForFormula - dAmount;
+              double comm = afterD * (store.comission! / 100);
+              discount = ((dAmount - comm) / priceForFormula) * 100;
+              discountType = 'percent';
+            }
+          }
+        }
+
+        // For BOGO, we want to calculate the FULL price of the expensive item
+        // because the "discount" part is handled separately by bogoFreeDiscount.
+        double? bogoInternalDiscount =
+            (isBogoGroup || isBogoVoucher) ? 0 : discount;
+        String? bogoInternalDiscountType =
+            (isBogoGroup || isBogoVoucher) ? 'percent' : discountType;
+
         bool isSimpleX = cartModel.item!.type == 'voucher' &&
             cartModel.item!.bundleType == 'simple x';
 
@@ -2367,8 +2626,8 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                                 (PriceConverter.convertWithDiscount(
                                         groupMember.item!.foodVariations![index]
                                             .variationValues![i].optionPrice!,
-                                        discount,
-                                        discountType,
+                                        bogoInternalDiscount,
+                                        bogoInternalDiscountType,
                                         isFoodVariation: true)! *
                                     (groupMember.quantity ?? 1));
                             memberVarDiscount += (groupMember
@@ -2394,7 +2653,9 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                 double memberBasePrice = 0;
                 if (!memberVariationSelected && baseCartPrice > 0) {
                   memberBasePrice = (PriceConverter.convertWithDiscount(
-                          baseCartPrice, discount, discountType)! *
+                          baseCartPrice,
+                          bogoInternalDiscount,
+                          bogoInternalDiscountType)! *
                       (groupMember.quantity ?? 1));
                 }
                 double memberBaseDiscount =
@@ -2414,6 +2675,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
               }
             }
             print('  - Final maxComboPrice: $maxComboPrice');
+
             variationPrice += maxComboPrice;
             variationDiscount += maxComboDiscountPrice;
           } else if (cartModel.item!.foodVariations != null &&
@@ -2529,6 +2791,14 @@ class CheckoutScreenState extends State<CheckoutScreen> {
     if (store != null && cartList != null) {
       for (var cartModel in cartList) {
         if (cartModel == null || cartModel.item == null) continue;
+
+        // --- Saim Fix: Prioritize cart-level discountAmount for Vouchers/Bundles ---
+        if (cartModel.item!.type == 'voucher' ||
+            cartModel.cartGroupId != null) {
+          discount = discount + (cartModel.discountAmount ?? 0);
+          continue;
+        }
+        // --------------------------------------------------------------------------
         double? itemDiscount = cartModel.item!.discount;
         String? itemDiscountType = cartModel.item!.discountType;
 
@@ -2541,6 +2811,37 @@ class CheckoutScreenState extends State<CheckoutScreen> {
               itemDiscount = c.item?.discount;
               itemDiscountType = c.item?.discountType;
               break;
+            }
+          }
+        }
+
+        // Adjust for Customer Commission
+        if (store.commissionPaidBy == 'customer' &&
+            store.comission != null &&
+            store.comission! > 0 &&
+            itemDiscount != null &&
+            itemDiscount > 0) {
+          if (itemDiscountType == 'percent') {
+            // Price-independent formula for percentage discounts:
+            // NewDiscount% = OldDiscount% - (1 - OldDiscount%/100) * Commission%
+            itemDiscount =
+                itemDiscount - (1 - itemDiscount / 100) * store.comission!;
+            itemDiscountType = 'percent';
+          } else {
+            // For amount discounts, we still need a reference price
+            double priceForFormula = (cartModel.item!.bundleType == 'simple x')
+                ? (cartModel.item!.actualPrice ?? cartModel.item!.price ?? 0)
+                : (cartModel.price != null && cartModel.price != 0)
+                    ? cartModel.price!
+                    : (cartModel.item!.price ??
+                        (cartModel.item!.actualPrice ?? 100));
+
+            if (priceForFormula > 0) {
+              double dAmount = itemDiscount;
+              double afterD = priceForFormula - dAmount;
+              double comm = afterD * (store.comission! / 100);
+              itemDiscount = ((dAmount - comm) / priceForFormula) * 100;
+              itemDiscountType = 'percent';
             }
           }
         }
@@ -2822,6 +3123,38 @@ class CheckoutScreenState extends State<CheckoutScreen> {
             discount = c.item?.discount;
             discountType = c.item?.discountType;
             break;
+          }
+        }
+      }
+
+      // Adjust for Customer Commission in Food Variation Discount
+      Store? effectiveStore = cartModel.item!.store ??
+          Get.find<CheckoutController>().store; // Fallback to current store
+      if (effectiveStore?.commissionPaidBy == 'customer' &&
+          effectiveStore?.comission != null &&
+          effectiveStore!.comission! > 0 &&
+          discount != null &&
+          discount > 0) {
+        if (discountType == 'percent') {
+          // Price-independent formula for percentage discounts:
+          discount =
+              discount - (1 - discount / 100) * effectiveStore.comission!;
+          discountType = 'percent';
+        } else {
+          // For amount discounts, we still need a reference price
+          double priceForFormula = (cartModel.item!.bundleType == 'simple x')
+              ? (cartModel.item!.actualPrice ?? cartModel.item!.price ?? 0)
+              : (cartModel.price != null && cartModel.price != 0)
+                  ? cartModel.price!
+                  : (cartModel.item!.price ??
+                      (cartModel.item!.actualPrice ?? 100));
+
+          if (priceForFormula > 0) {
+            double dAmount = discount;
+            double afterD = priceForFormula - dAmount;
+            double comm = afterD * (effectiveStore.comission! / 100);
+            discount = ((dAmount - comm) / priceForFormula) * 100;
+            discountType = 'percent';
           }
         }
       }

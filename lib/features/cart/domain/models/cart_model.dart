@@ -21,6 +21,7 @@ class CartModel {
   String? _type;
   String? _status;
   GiftDetails? _giftDetails;
+  double? _commissionAmount;
 
   CartModel(
       int? id,
@@ -40,7 +41,8 @@ class CartModel {
       String? cartGroupId,
       String? type,
       String? status,
-      GiftDetails? giftDetails}) {
+      GiftDetails? giftDetails,
+      double? commissionAmount}) {
     _id = id;
     _price = price;
     _discountedPrice = discountedPrice;
@@ -58,6 +60,7 @@ class CartModel {
     _type = type;
     _status = status;
     _giftDetails = giftDetails;
+    _commissionAmount = commissionAmount;
     _isLoading = isLoading;
   }
 
@@ -81,6 +84,7 @@ class CartModel {
   String? get type => _type;
   String? get status => _status;
   GiftDetails? get giftDetails => _giftDetails;
+  double? get commissionAmount => _commissionAmount;
   // ignore: unnecessary_getters_setters
   bool? get isLoading => _isLoading;
   set isLoading(bool? status) => _isLoading = status;
@@ -134,6 +138,7 @@ class CartModel {
     if (json['gift_details'] != null) {
       _giftDetails = GiftDetails.fromJson(json['gift_details']);
     }
+    _commissionAmount = json['commission_amount']?.toDouble();
     _isLoading = json['is_loading'] ?? false;
   }
 
@@ -165,6 +170,7 @@ class CartModel {
     if (_giftDetails != null) {
       data['gift_details'] = _giftDetails!.toJson();
     }
+    data['commission_amount'] = _commissionAmount;
     return data;
   }
 }

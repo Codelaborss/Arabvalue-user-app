@@ -222,7 +222,8 @@ class HotVoucherCard extends StatelessWidget {
                                         color: Colors.white, fontSize: 8),
                                   ),
                                   Text(
-                                    discountType == 'amount'
+                                    (discountType == 'amount' ||
+                                            discountType == 'fixed')
                                         ? PriceConverter.convertPrice(discount)
                                         : '${discount?.toInt()}%',
                                     style: robotoBold.copyWith(

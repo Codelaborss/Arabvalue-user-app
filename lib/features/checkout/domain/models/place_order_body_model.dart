@@ -42,6 +42,7 @@ class PlaceOrderBodyModel {
   String? _password;
   bool? isPrescriptionOrder;
   GiftDetails? _giftDetails;
+  double? _commissionAmount;
 
   PlaceOrderBodyModel({
     required List<OnlineCart> cart,
@@ -82,6 +83,7 @@ class PlaceOrderBodyModel {
     required String? password,
     this.isPrescriptionOrder = false,
     GiftDetails? giftDetails,
+    double? commissionAmount,
   }) {
     _cart = cart;
     _couponDiscountAmount = couponDiscountAmount;
@@ -120,6 +122,7 @@ class PlaceOrderBodyModel {
     _createNewUser = createNewUser;
     _password = password;
     _giftDetails = giftDetails;
+    _commissionAmount = commissionAmount;
     isPrescriptionOrder = isPrescriptionOrder ?? false;
   }
 
@@ -311,6 +314,7 @@ class PlaceOrderBodyModel {
     if (_giftDetails != null) {
       data['gift_details'] = jsonEncode(_giftDetails!.toJson());
     }
+    data['commission_amount'] = (_commissionAmount ?? 0).toString();
     return data;
   }
 }

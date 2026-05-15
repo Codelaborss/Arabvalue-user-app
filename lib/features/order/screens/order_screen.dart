@@ -207,14 +207,14 @@ class OrderScreenState extends State<OrderScreen>
                               ? Expanded(
                                   child: TabBarView(
                                   controller: _tabController,
-                                  children: [
-                                    const OrderViewWidget(
+                                  children: const [
+                                    OrderViewWidget(
                                         isRunning: false, status: 'all'),
-                                    const OrderViewWidget(
+                                    OrderViewWidget(
                                         isRunning: true, status: 'active'),
-                                    const OrderViewWidget(
+                                    OrderViewWidget(
                                         isRunning: false, status: 'redeemed'),
-                                    const OrderViewWidget(
+                                    OrderViewWidget(
                                         isRunning: false, status: 'expired'),
                                   ],
                                 ))

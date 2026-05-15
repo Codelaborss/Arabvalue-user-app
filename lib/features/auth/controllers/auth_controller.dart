@@ -131,6 +131,9 @@ class AuthController extends GetxController implements GetxService {
         print('====> ✅ Client Data Saved:');
         print('       - Name: ${clientMap['name']}');
         print('       - Logo: ${clientMap['logo']}');
+
+        // Fetch client theme after login
+        await _fetchClientThemeAfterLogin();
       } else {
         print('====> ⚠️ No client data in response');
       }
@@ -175,6 +178,9 @@ class AuthController extends GetxController implements GetxService {
           }
         }
         await authServiceInterface.saveClientData(jsonEncode(clientMap));
+
+        // Fetch client theme after login
+        await _fetchClientThemeAfterLogin();
       }
     }
 
@@ -519,6 +525,83 @@ class AuthController extends GetxController implements GetxService {
       update();
       print('====> PIN Verify Error: $e');
       return ResponseModel(false, e.toString());
+    }
+  }
+
+  Future<void> _fetchClientThemeAfterLogin() async {
+    try {
+      print('====> 🔍 Fetching Client Theme from API after login...');
+
+      // Get the app ID from saved client app data
+      String clientAppDataJson = await authServiceInterface.getClientAppData();
+      if (clientAppDataJson.isEmpty) {
+        print('====> ⚠️ No client app data found');
+        return;
+      }
+
+      Map<String, dynamic> clientAppData = jsonDecode(clientAppDataJson);
+      int appId = clientAppData['id'] ?? 1; // Default to 1 if not found
+
+      print('====> 📱 Using dynamic App ID: $appId');
+
+      final response = await http.get(
+        Uri.parse('https://fortestingweb.com/api/v1/client/$appId'),
+      );
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = jsonDecode(response.body);
+
+        print('====> ✅ Client API Response Received');
+
+        if (data['apps'] != null && data['apps'].isNotEmpty) {
+          List<dynamic> apps = data['apps'];
+
+          var targetApp = apps.firstWhere(
+            (app) => app['status'] == 'active',
+            orElse: () => apps[0],
+          );
+
+          print('====> 📱 App Found: ${targetApp['app_name']}');
+
+          if (targetApp['themes'] != null && targetApp['themes'].isNotEmpty) {
+            List<dynamic> themes = targetApp['themes'];
+
+            var activeTheme = themes.firstWhere(
+              (theme) {
+                var colorCodes = theme['color_codes'] ?? theme['colorCodes'];
+                return theme['status'] == 'active' &&
+                    colorCodes != null &&
+                    colorCodes.isNotEmpty;
+              },
+              orElse: () => themes[0],
+            );
+
+            print(
+                '====> 🎨 Active Theme Selected for Application: ${activeTheme['name']}');
+
+            String appDataJson = jsonEncode(targetApp);
+            await authServiceInterface.saveClientAppData(appDataJson);
+
+            String themesJson = jsonEncode(themes);
+            await authServiceInterface.saveClientAppThemes(themesJson);
+
+            print('====> ✅ Client Theme Saved to Priority 1!');
+
+            if (Get.isRegistered<DynamicThemeController>()) {
+              await Get.find<DynamicThemeController>().reloadTheme();
+              print('====> ✅ Theme Applied from Client API!');
+            }
+          } else {
+            print('====> ⚠️ No themes found in Client API');
+          }
+        } else {
+          print('====> ⚠️ No apps found in Client API response');
+        }
+      } else {
+        print('====> ❌ Client API call failed: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('====> ⚠️ Client theme fetch failed: $e');
     }
   }
 }

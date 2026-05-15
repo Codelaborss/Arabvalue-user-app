@@ -4,22 +4,24 @@ class VoucherDividerClipper extends CustomClipper<Path> {
   final double cutoutX;
   final double cutoutRadius;
   final double borderRadius;
-
+  final bool isLtr;
   VoucherDividerClipper({
     required this.cutoutX,
     this.cutoutRadius = 10,
     this.borderRadius = 12,
+    this.isLtr = true,
   });
 
   @override
   Path getClip(Size size) {
+    double actualCutoutX = isLtr ? cutoutX : size.width - cutoutX;
     Path path = Path();
     path.moveTo(borderRadius, 0);
 
     // Top edge with cutout
-    path.lineTo(cutoutX - cutoutRadius, 0);
+    path.lineTo(actualCutoutX - cutoutRadius, 0);
     path.arcToPoint(
-      Offset(cutoutX + cutoutRadius, 0),
+      Offset(actualCutoutX + cutoutRadius, 0),
       radius: Radius.circular(cutoutRadius),
       clockwise: false,
     );
@@ -41,9 +43,9 @@ class VoucherDividerClipper extends CustomClipper<Path> {
     );
 
     // Bottom edge with cutout
-    path.lineTo(cutoutX + cutoutRadius, size.height);
+    path.lineTo(actualCutoutX + cutoutRadius, size.height);
     path.arcToPoint(
-      Offset(cutoutX - cutoutRadius, size.height),
+      Offset(actualCutoutX - cutoutRadius, size.height),
       radius: Radius.circular(cutoutRadius),
       clockwise: false,
     );

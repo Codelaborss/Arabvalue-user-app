@@ -75,7 +75,7 @@ class _WebHotVoucherViewWidgetState extends State<WebHotVoucherViewWidget> {
                       ),
                       InkWell(
                         onTap: () => Get.toNamed(
-                            RouteHelper.getItemViewAllScreen(true, false)),
+                            RouteHelper.getHotVoucherVoucherViewAllRoute()),
                         child: Text(
                           'see_all'.tr,
                           style: robotoMedium.copyWith(

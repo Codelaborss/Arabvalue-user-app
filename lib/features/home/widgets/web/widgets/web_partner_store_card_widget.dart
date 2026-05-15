@@ -42,7 +42,10 @@ class WebPartnerStoreCardWidget extends StatelessWidget {
               for (ModuleModel module
                   in Get.find<SplashController>().moduleList!) {
                 if (module.id == store.moduleId) {
-                  Get.find<SplashController>().setModule(module);
+                  if (Get.find<SplashController>().module?.id != module.id) {
+                    Get.find<SplashController>()
+                        .setModule(module, notify: false);
+                  }
                   break;
                 }
               }
@@ -107,7 +110,7 @@ class WebPartnerStoreCardWidget extends StatelessWidget {
                             iconColor: Colors.amber),
                         const SizedBox(width: Dimensions.paddingSizeExtraSmall),
                         _buildBadge(context, Icons.confirmation_number_outlined,
-                            '${store.vouchers?.length ?? 0} Offers'),
+                            '${store.vouchers?.length ?? 0} ${'offers'.tr}'),
                       ],
                     ),
                     const SizedBox(height: Dimensions.paddingSizeDefault),
@@ -115,7 +118,7 @@ class WebPartnerStoreCardWidget extends StatelessWidget {
                     // Address and Status Row
                     Row(
                       children: [
-                        Icon(Icons.location_on,
+                        const Icon(Icons.location_on,
                             size: 18, color: Colors.black87),
                         const SizedBox(width: 4),
                         Expanded(

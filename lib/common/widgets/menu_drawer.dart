@@ -30,50 +30,57 @@ class MenuDrawerState extends State<MenuDrawer>
         icon: Images.profile,
         title: 'profile'.tr,
         onTap: () {
-          Get.back();
+          Navigator.pop(Get.context!);
           Get.toNamed(RouteHelper.getProfileRoute());
         }),
     Menu(
         icon: Images.orders,
         title: 'my_orders'.tr,
         onTap: () {
-          Get.back();
+          Navigator.pop(Get.context!);
           Get.offAllNamed(RouteHelper.getOrderRoute());
         }),
     Menu(
         icon: Images.location,
         title: 'my_address'.tr,
         onTap: () {
-          Get.back();
+          Navigator.pop(Get.context!);
           Get.toNamed(RouteHelper.getAddressRoute());
         }),
     Menu(
         icon: Images.language,
         title: 'language'.tr,
         onTap: () {
-          Get.back();
+          Navigator.pop(Get.context!);
           Get.toNamed(RouteHelper.getLanguageRoute('menu'));
         }),
     Menu(
         icon: Images.coupon,
         title: 'coupon'.tr,
         onTap: () {
-          Get.back();
+          Navigator.pop(Get.context!);
           Get.toNamed(RouteHelper.getCouponRoute());
         }),
     Menu(
         icon: Images.support,
         title: 'help_support'.tr,
         onTap: () {
-          Get.back();
+          Navigator.pop(Get.context!);
           Get.toNamed(RouteHelper.getSupportRoute());
         }),
     Menu(
         icon: Images.chat,
         title: 'live_chat'.tr,
         onTap: () {
-          Get.back();
+          Navigator.pop(Get.context!);
           Get.toNamed(RouteHelper.getConversationRoute());
+        }),
+    Menu(
+        icon: Images.announcement,
+        title: 'notification'.tr,
+        onTap: () {
+          Navigator.pop(Get.context!);
+          Get.toNamed(RouteHelper.getNotificationRoute());
         }),
   ];
 
@@ -97,7 +104,7 @@ class MenuDrawerState extends State<MenuDrawer>
           icon: Images.refund,
           title: 'refund_policy'.tr,
           onTap: () {
-            Get.back();
+            Navigator.pop(Get.context!);
             Get.toNamed(RouteHelper.getHtmlRoute('refund-policy'));
           }));
     }
@@ -107,7 +114,7 @@ class MenuDrawerState extends State<MenuDrawer>
           icon: Images.cancellation,
           title: 'cancellation_policy'.tr,
           onTap: () {
-            Get.back();
+            Navigator.pop(Get.context!);
             Get.toNamed(RouteHelper.getHtmlRoute('cancellation-policy'));
           }));
     }
@@ -116,7 +123,7 @@ class MenuDrawerState extends State<MenuDrawer>
           icon: Images.shippingPolicy,
           title: 'shipping_policy'.tr,
           onTap: () {
-            Get.back();
+            Navigator.pop(Get.context!);
             Get.toNamed(RouteHelper.getHtmlRoute('shipping-policy'));
           }));
     }
@@ -127,9 +134,9 @@ class MenuDrawerState extends State<MenuDrawer>
           title: 'wallet'.tr,
           onTap: () {
             if (Get.currentRoute.contains('wallet')) {
-              Get.back();
+              Navigator.pop(Get.context!);
             }
-            Get.back();
+            Navigator.pop(Get.context!);
             Get.toNamed(RouteHelper.getWalletRoute());
           }));
     }
@@ -139,7 +146,7 @@ class MenuDrawerState extends State<MenuDrawer>
           icon: Images.loyal,
           title: 'loyalty_points'.tr,
           onTap: () {
-            Get.back();
+            Navigator.pop(Get.context!);
             Get.toNamed(RouteHelper.getLoyaltyRoute());
           }));
     }
@@ -148,7 +155,7 @@ class MenuDrawerState extends State<MenuDrawer>
           icon: Images.referCode,
           title: 'refer_and_earn'.tr,
           onTap: () {
-            Get.back();
+            Navigator.pop(Get.context!);
             Get.toNamed(RouteHelper.getReferAndEarnRoute());
           }));
     }
@@ -157,7 +164,7 @@ class MenuDrawerState extends State<MenuDrawer>
           icon: Images.deliveryManJoin,
           title: 'join_as_a_delivery_man'.tr,
           onTap: () {
-            Get.back();
+            Navigator.pop(Get.context!);
             Get.toNamed(RouteHelper.getDeliverymanRegistrationRoute());
           }));
     }
@@ -172,7 +179,7 @@ class MenuDrawerState extends State<MenuDrawer>
             ? 'join_as_a_restaurant'.tr
             : 'join_as_a_store'.tr,
         onTap: () {
-          Get.back();
+          Navigator.pop(Get.context!);
           Get.toNamed(RouteHelper.getRestaurantRegistrationRoute());
         },
       ));
@@ -181,7 +188,7 @@ class MenuDrawerState extends State<MenuDrawer>
         icon: Images.logOut,
         title: AuthHelper.isLoggedIn() ? 'logout'.tr : 'sign_in'.tr,
         onTap: () {
-          Get.back();
+          Navigator.pop(Get.context!);
           if (AuthHelper.isLoggedIn()) {
             Get.dialog(
                 ConfirmationDialog(
@@ -273,7 +280,7 @@ class MenuDrawerState extends State<MenuDrawer>
                   Text('menu'.tr, style: robotoBold.copyWith(fontSize: 20)),
                   IconButton(
                       padding: const EdgeInsets.all(0),
-                      onPressed: () => Get.back(),
+                      onPressed: () => Navigator.pop(Get.context!),
                       icon: const Icon(Icons.close))
                 ],
               ),

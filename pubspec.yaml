@@ -75,6 +75,7 @@ dependencies:
   http_parser: ^4.1.0
   skeletonizer: ^1.1.0
   qr_flutter: ^4.1.0
+  dart_jsonwebtoken: ^3.4.1
 
 
 dependency_overrides:

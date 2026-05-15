@@ -104,7 +104,8 @@ class CategoryItemScreenState extends State<CategoryItemScreen>
   @override
   void dispose() {
     super.dispose();
-    Get.find<CategoryController>().setVoucherFilter('Voucher Type');
+    Get.find<CategoryController>()
+        .setVoucherFilter('Voucher Type', notify: false);
   }
 
   @override
@@ -201,7 +202,7 @@ class CategoryItemScreenState extends State<CategoryItemScreen>
                       if (catController.isSearching) {
                         catController.toggleSearch();
                       } else {
-                        Get.back();
+                        Navigator.pop(context);
                       }
                     },
                   ),
@@ -358,7 +359,12 @@ class CategoryItemScreenState extends State<CategoryItemScreen>
                                     ),
                                   ),
                                   child: PopupMenuButton<String>(
-                                    offset: const Offset(40, 45),
+                                    offset: Offset(
+                                        Directionality.of(context) ==
+                                                TextDirection.ltr
+                                            ? 40
+                                            : -40,
+                                        45),
                                     surfaceTintColor: Colors.white,
                                     color: Colors.white,
                                     padding: EdgeInsets.zero,
@@ -390,12 +396,12 @@ class CategoryItemScreenState extends State<CategoryItemScreen>
                                             (catController.voucherFilter ==
                                                 choice);
                                         String displayLabel = choice == 'all'
-                                            ? 'All'
+                                            ? 'all'.tr
                                             : (choice == 'Gift'
-                                                ? 'Gift Cards'
+                                                ? 'gift_cards'.tr
                                                 : (choice == 'Delivery/Pickup'
-                                                    ? 'Delivery'
-                                                    : choice));
+                                                    ? 'delivery'.tr
+                                                    : choice.tr));
 
                                         return PopupMenuItem<String>(
                                           value: choice == 'all'
@@ -770,7 +776,12 @@ class CategoryItemScreenState extends State<CategoryItemScreen>
                                 ),
                               ),
                               child: PopupMenuButton<String>(
-                                offset: const Offset(40, 45),
+                                offset: Offset(
+                                    Directionality.of(context) ==
+                                            TextDirection.ltr
+                                        ? 40
+                                        : -40,
+                                    45),
                                 surfaceTintColor: Colors.white,
                                 color: Colors.white,
                                 padding: EdgeInsets.zero,
@@ -801,12 +812,12 @@ class CategoryItemScreenState extends State<CategoryItemScreen>
                                                 'Voucher Type') ||
                                         (catController.voucherFilter == choice);
                                     String displayLabel = choice == 'all'
-                                        ? 'All'
+                                        ? 'all'.tr
                                         : (choice == 'Gift'
-                                            ? 'Gift Cards'
+                                            ? 'gift_cards'.tr
                                             : (choice == 'Delivery/Pickup'
-                                                ? 'Delivery'
-                                                : choice));
+                                                ? 'delivery'.tr
+                                                : choice.tr));
 
                                     return PopupMenuItem<String>(
                                       value: choice == 'all'

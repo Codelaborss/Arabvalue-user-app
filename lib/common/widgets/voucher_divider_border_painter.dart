@@ -9,6 +9,7 @@ class VoucherDividerBorderPainter extends CustomPainter {
   final double cutoutRadius;
   final double strokeWidth;
   final double borderRadius;
+  final bool isLtr;
 
   VoucherDividerBorderPainter({
     this.color,
@@ -18,10 +19,12 @@ class VoucherDividerBorderPainter extends CustomPainter {
     this.cutoutRadius = 10,
     this.strokeWidth = 5.0,
     this.borderRadius = Dimensions.radiusLarge,
+    this.isLtr = true,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
+    double actualCutoutX = isLtr ? cutoutX : size.width - cutoutX;
     Paint paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
@@ -42,9 +45,9 @@ class VoucherDividerBorderPainter extends CustomPainter {
     path.moveTo(borderRadius, 0);
 
     // Top edge with cutout
-    path.lineTo(cutoutX - cutoutRadius, 0);
+    path.lineTo(actualCutoutX - cutoutRadius, 0);
     path.arcToPoint(
-      Offset(cutoutX + cutoutRadius, 0),
+      Offset(actualCutoutX + cutoutRadius, 0),
       radius: Radius.circular(cutoutRadius),
       clockwise: false,
     );
@@ -66,9 +69,9 @@ class VoucherDividerBorderPainter extends CustomPainter {
     );
 
     // Bottom edge with cutout
-    path.lineTo(cutoutX + cutoutRadius, size.height);
+    path.lineTo(actualCutoutX + cutoutRadius, size.height);
     path.arcToPoint(
-      Offset(cutoutX - cutoutRadius, size.height),
+      Offset(actualCutoutX - cutoutRadius, size.height),
       radius: Radius.circular(cutoutRadius),
       clockwise: false,
     );

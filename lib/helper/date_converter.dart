@@ -7,6 +7,14 @@ class DateConverter {
   static String formatDate(DateTime dateTime) {
     return DateFormat('yyyy-MM-dd hh:mm:ss a').format(dateTime);
   }
+  static String convertDateTimeStringToDateTime(String dateTime) {
+  try {
+    DateTime date = DateFormat('yyyy-MM-dd HH:mm:ss').parse(dateTime);
+    return DateFormat('MMM dd, yyyy  h:mm a').format(date);
+  } catch(e) {
+    return dateTime;
+  }
+}
 
   static String dateToTimeOnly(DateTime dateTime) {
     return DateFormat(_timeFormatter()).format(dateTime);

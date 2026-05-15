@@ -454,9 +454,10 @@ class CartController extends GetxController implements GetxService {
     Response response = await Get.find<ApiClient>().postData(
         '${AppConstants.addCartUri}${!AuthHelper.isLoggedIn() ? '?guest_id=${AuthHelper.getGuestId()}' : ''}',
         cart.toJson(),
-        timeout: cart.timeout, handleError: false);
+        timeout: cart.timeout,
+        handleError: false);
     _lastResponse = response;
-    
+
     if (response.statusCode == 200) {
       List<OnlineCartModel> onlineCartList = [];
       if (response.body is List) {

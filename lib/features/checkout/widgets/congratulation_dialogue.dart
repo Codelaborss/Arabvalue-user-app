@@ -7,6 +7,7 @@ import 'package:sixam_mart/util/dimensions.dart';
 import 'package:sixam_mart/util/images.dart';
 import 'package:sixam_mart/util/styles.dart';
 import 'package:sixam_mart/common/widgets/custom_button.dart';
+
 class CongratulationDialogue extends StatelessWidget {
   const CongratulationDialogue({super.key});
 
@@ -26,41 +27,48 @@ class CongratulationDialogue extends StatelessWidget {
                 borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
               ),
               child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Image.asset(Get.find<ThemeController>().darkTheme ? Images.congratulationDark : Images.congratulationLight, width: 100, height: 100),
-
-                Text('congratulations'.tr , style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge)),
+                Image.asset(
+                    Get.find<ThemeController>().darkTheme
+                        ? Images.congratulationDark
+                        : Images.congratulationLight,
+                    width: 100,
+                    height: 100),
+                Text('congratulations'.tr,
+                    style: robotoMedium.copyWith(
+                        fontSize: Dimensions.fontSizeLarge)),
                 const SizedBox(height: Dimensions.paddingSizeSmall),
-
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: Dimensions.paddingSizeSmall),
                   child: Text(
                     '${'you_will_earn'.tr} ${Get.find<AuthController>().getEarningPint()} ${'points_after_completing_this_order'.tr}',
-                    style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge,color: Theme.of(context).disabledColor),
+                    style: robotoRegular.copyWith(
+                        fontSize: Dimensions.fontSizeLarge,
+                        color: Theme.of(context).disabledColor),
                     textAlign: TextAlign.center,
                   ),
                 ),
                 const SizedBox(height: Dimensions.paddingSizeLarge),
-
                 CustomButton(
                   buttonText: 'visit_loyalty_points'.tr,
-                  onPressed: (){
+                  onPressed: () {
                     Get.find<AuthController>().saveEarningPoint('');
-                    Get.back();
+                    Navigator.pop(context);
                     Get.toNamed(RouteHelper.getLoyaltyRoute());
                   },
                 )
               ]),
             ),
-
             Positioned(
-              top: 5, right: 5,
-                child: InkWell(
-                  onTap: (){
-                    Get.find<AuthController>().saveEarningPoint('');
-                    Get.back();
-                  },
-                    child: const Icon(Icons.clear, size: 18),
-                ),
+              top: 5,
+              right: 5,
+              child: InkWell(
+                onTap: () {
+                  Get.find<AuthController>().saveEarningPoint('');
+                  Navigator.pop(context);
+                },
+                child: const Icon(Icons.clear, size: 18),
+              ),
             )
           ],
         ),

@@ -134,6 +134,9 @@ class Item {
   String? offerType;
   List<VoucherTerm>? termAndConditionIds;
   AvailabilityForCurrentUser? availabilityForCurrentUser;
+  List<Reviews>? reviews;
+  double? storeCommission;
+  String? commissionPaidBy;
 
   Item({
     this.id,
@@ -201,6 +204,9 @@ class Item {
     this.offerType,
     this.termAndConditionIds,
     this.availabilityForCurrentUser,
+    this.reviews,
+    this.storeCommission,
+    this.commissionPaidBy,
   });
 
   Item.fromJson(Map<String, dynamic> json) {
@@ -525,6 +531,12 @@ class Item {
         howItWorks!.add(HowItWorks.fromJson(v));
       });
     }
+    if (json['reviews'] != null) {
+      reviews = [];
+      json['reviews'].forEach((v) {
+        reviews!.add(Reviews.fromJson(v));
+      });
+    }
     // Handle both new nested structure: all_branches.branches
     // and old flat structure: branches
     dynamic branchesData;
@@ -733,6 +745,8 @@ class Item {
             ? AvailabilityForCurrentUser.fromJson(
                 json['availability_for_current_user'])
             : null;
+    storeCommission = json['store_commission']?.toDouble();
+    commissionPaidBy = json['commission_paid_by'];
   }
 
   Map<String, dynamic> toJson() {
@@ -836,6 +850,11 @@ class Item {
       data['availability_for_current_user'] =
           availabilityForCurrentUser!.toJson();
     }
+    if (reviews != null) {
+      data['reviews'] = reviews!.map((v) => v.toJson()).toList();
+    }
+    data['store_commission'] = storeCommission;
+    data['commission_paid_by'] = commissionPaidBy;
     return data;
   }
 }
@@ -1756,6 +1775,91 @@ class VoucherTerm {
     data['restriction_polices_surchange_account'] = surchargeAccount;
     data['restriction_polices_surchange_apple'] = surchargeApple;
     data['voucher_id'] = voucherId;
+    return data;
+  }
+}
+
+class Reviews {
+  int? id;
+  int? itemId;
+  int? userId;
+  String? comment;
+  int? rating;
+  int? orderId;
+  String? createdAt;
+  Customer? customer;
+
+  Reviews(
+      {this.id,
+      this.itemId,
+      this.userId,
+      this.comment,
+      this.rating,
+      this.orderId,
+      this.createdAt,
+      this.customer});
+
+  Reviews.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    itemId = json['item_id'];
+    userId = json['user_id'];
+    comment = json['comment'];
+    rating = json['rating'];
+    orderId = json['order_id'];
+    createdAt = json['created_at'];
+    customer =
+        json['customer'] != null ? Customer.fromJson(json['customer']) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['item_id'] = itemId;
+    data['user_id'] = userId;
+    data['comment'] = comment;
+    data['rating'] = rating;
+    data['order_id'] = orderId;
+    data['created_at'] = createdAt;
+    if (customer != null) {
+      data['customer'] = customer!.toJson();
+    }
+    return data;
+  }
+}
+
+class Customer {
+  int? id;
+  String? fName;
+  String? lName;
+  String? phone;
+  String? email;
+  String? imageFullUrl;
+
+  Customer(
+      {this.id,
+      this.fName,
+      this.lName,
+      this.phone,
+      this.email,
+      this.imageFullUrl});
+
+  Customer.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    fName = json['f_name'];
+    lName = json['l_name'];
+    phone = json['phone'];
+    email = json['email'];
+    imageFullUrl = json['image_full_url'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['f_name'] = fName;
+    data['l_name'] = lName;
+    data['phone'] = phone;
+    data['email'] = email;
+    data['image_full_url'] = imageFullUrl;
     return data;
   }
 }

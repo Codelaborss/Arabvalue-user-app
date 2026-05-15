@@ -1,3 +1,4 @@
+import 'package:sixam_mart/features/language/controllers/language_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sixam_mart/common/widgets/custom_image.dart';
@@ -8,6 +9,7 @@ import 'package:sixam_mart/features/item/domain/models/item_model.dart';
 import 'package:sixam_mart/helper/price_converter.dart';
 import 'package:sixam_mart/util/dimensions.dart';
 import 'package:sixam_mart/util/styles.dart';
+import 'package:sixam_mart/helper/route_helper.dart';
 
 class StoreItemWidget extends StatelessWidget {
   final Item item;
@@ -27,6 +29,7 @@ class StoreItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool isLtr = Get.find<LocalizationController>().isLtr;
     double? discount = item.discount;
     String? discountType = item.discountType;
 
@@ -57,12 +60,47 @@ class StoreItemWidget extends StatelessWidget {
     List<Color> colors = _getVoucherColors(item.voucherIds);
     Color mixedColor = Color.lerp(colors[0], colors[1], 0.3) ?? colors[0];
 
+    double displayDiscount = discount ?? 0;
+    String displayDiscountType = discountType ?? 'percent';
+    String saveText = (item.offerType?.toLowerCase() == 'cash back')
+        ? 'cashback_uppercase'.tr
+        : (item.bundleType == 'gift'
+            ? 'bonus_uppercase'.tr
+            : 'save_uppercase'.tr);
+
+    if ((Get.currentRoute.contains(RouteHelper.categoryItem) ||
+            Get.currentRoute.contains(RouteHelper.store)) &&
+        item.commissionPaidBy == 'customer' &&
+        (item.storeCommission ?? 0) > 0 &&
+        item.bundleType != 'gift') {
+      if (item.bundleType == 'simple x') {
+        saveText = 'save_uppercase'.tr;
+        if (displayDiscountType == 'percent') {
+          displayDiscount = displayDiscount -
+              (1 - displayDiscount / 100) * item.storeCommission!;
+        } else {
+          double priceForFormula = item.actualPrice ?? item.price ?? 100;
+          if (priceForFormula > 0) {
+            double afterD = priceForFormula - displayDiscount;
+            double comm = afterD * (item.storeCommission! / 100);
+            displayDiscount =
+                ((displayDiscount - comm) / priceForFormula) * 100;
+            displayDiscountType = 'percent';
+          }
+        }
+      } else {
+        saveText = (item.offerType?.toLowerCase() == 'cash back')
+            ? 'cash_back_upto'.tr
+            : 'save_upto'.tr;
+      }
+    }
+
     return Stack(
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
           child: ClipPath(
-            clipper: TopBottomScallopedClipper(cutoutX: 118),
+            clipper: TopBottomScallopedClipper(cutoutX: 118, isLtr: isLtr),
             child: Container(
               decoration: BoxDecoration(
                 color: backgroundColor ?? Theme.of(context).cardColor,
@@ -98,10 +136,11 @@ class StoreItemWidget extends StatelessWidget {
                           // Vertical Badge
                           if (item.voucherIds != null &&
                               item.voucherIds!.isNotEmpty)
-                            Positioned(
+                            Positioned.directional(
+                              textDirection: Directionality.of(context),
                               top: 10,
                               bottom: 15,
-                              left: 0,
+                              start: 0,
                               child: Container(
                                 width: 25,
                                 decoration: BoxDecoration(
@@ -110,11 +149,15 @@ class StoreItemWidget extends StatelessWidget {
                                     end: Alignment.bottomCenter,
                                     colors: colors,
                                   ),
-                                  borderRadius: const BorderRadius.only(
-                                    topRight:
-                                        Radius.circular(Dimensions.radiusLarge),
-                                    bottomRight:
-                                        Radius.circular(Dimensions.radiusLarge),
+                                  borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(
+                                        isLtr ? Dimensions.radiusLarge : 0),
+                                    bottomRight: Radius.circular(
+                                        isLtr ? Dimensions.radiusLarge : 0),
+                                    topLeft: Radius.circular(
+                                        isLtr ? 0 : Dimensions.radiusLarge),
+                                    bottomLeft: Radius.circular(
+                                        isLtr ? 0 : Dimensions.radiusLarge),
                                   ),
                                 ),
                                 alignment: Alignment.center,
@@ -126,6 +169,41 @@ class StoreItemWidget extends StatelessWidget {
                                         color: Colors.white, fontSize: 10),
                                     maxLines: 1,
                                   ),
+                                ),
+                              ),
+                            ),
+                          // Rating (Bottom-Right)
+                          if ((item.avgRating ?? 0) > 0)
+                            Positioned.directional(
+                              textDirection: Directionality.of(context),
+                              bottom: 10,
+                              end: 10,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.9),
+                                  borderRadius: BorderRadius.circular(
+                                      Dimensions.radiusSmall),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color:
+                                            Colors.black.withValues(alpha: 0.1),
+                                        blurRadius: 4,
+                                        spreadRadius: 1)
+                                  ],
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.star,
+                                        size: 12, color: Colors.amber),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      (item.avgRating ?? 0).toStringAsFixed(1),
+                                      style: robotoBold.copyWith(
+                                          fontSize: 10, color: Colors.black),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -160,27 +238,30 @@ class StoreItemWidget extends StatelessWidget {
                               ),
                               const SizedBox(height: 8),
                               if (showPrice)
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                Wrap(
                                   children: [
                                     if (((discount ?? 0) > 0 &&
                                             item.type != 'voucher') ||
                                         (item.type == 'voucher' &&
                                             item.bundleType == 'simple x'))
-                                      Text(
-                                        PriceConverter.convertPrice((item
-                                                        .type ==
-                                                    'voucher' &&
-                                                item.bundleType == 'simple x')
-                                            ? (item.actualPrice ?? item.price)
-                                            : item.price),
-                                        style: robotoRegular.copyWith(
-                                          fontSize:
-                                              Dimensions.fontSizeExtraSmall,
-                                          color:
-                                              Theme.of(context).disabledColor,
-                                          decoration:
-                                              TextDecoration.lineThrough,
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 5),
+                                        child: Text(
+                                          PriceConverter.convertPrice((item
+                                                          .type ==
+                                                      'voucher' &&
+                                                  item.bundleType == 'simple x')
+                                              ? (item.actualPrice ?? item.price)
+                                              : item.price),
+                                          style: robotoRegular.copyWith(
+                                            fontSize:
+                                                Dimensions.fontSizeExtraSmall,
+                                            color:
+                                                Theme.of(context).disabledColor,
+                                            decoration:
+                                                TextDecoration.lineThrough,
+                                          ),
                                         ),
                                       ),
                                     Text(
@@ -203,6 +284,30 @@ class StoreItemWidget extends StatelessWidget {
                                     ),
                                   ],
                                 ),
+                              if (item.availabilityForCurrentUser?.status ==
+                                  'not_available')
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 2),
+                                  child: Text(
+                                    'out_of_stock'.tr,
+                                    style: robotoBold.copyWith(
+                                        fontSize: Dimensions.fontSizeDefault,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .error),
+                                  ),
+                                ),
+                              if (item.availabilityForCurrentUser?.userUsage !=
+                                  null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 2),
+                                  child: Text(
+                                    '${'remaining'.tr}: ${item.availabilityForCurrentUser!.userUsage!.remaining ?? 0}',
+                                    style: robotoBold.copyWith(
+                                        fontSize: Dimensions.fontSizeDefault,
+                                        color: Colors.black),
+                                  ),
+                                ),
                             ],
                           ),
                         ),
@@ -216,7 +321,7 @@ class StoreItemWidget extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             // Save Badge
-                            if (showDiscount && (discount ?? 0) > 0)
+                            if (showDiscount && (displayDiscount > 0))
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 14, vertical: 10),
@@ -227,14 +332,14 @@ class StoreItemWidget extends StatelessWidget {
                                 ),
                                 child: Column(
                                   children: [
-                                    Text('SAVE'.tr,
+                                    Text(saveText.tr,
                                         style: robotoBold.copyWith(
                                             color: Colors.white, fontSize: 10)),
                                     Text(
-                                      discountType == 'amount'
+                                      displayDiscountType == 'amount'
                                           ? PriceConverter.convertPrice(
-                                              discount)
-                                          : '${discount?.toInt()}%',
+                                              displayDiscount)
+                                          : '${displayDiscount % 1 == 0 ? displayDiscount.toInt() : displayDiscount.toStringAsFixed(1)}%',
                                       style: robotoBold.copyWith(
                                           color: Colors.white, fontSize: 16),
                                     ),
@@ -287,6 +392,7 @@ class StoreItemWidget extends StatelessWidget {
                   colors: colors,
                   stops: const [0.7, 1.0],
                   cutoutX: 118,
+                  isLtr: isLtr,
                 ),
               ),
             ),
@@ -346,17 +452,20 @@ class CurvedDividerPainter extends CustomPainter {
 class TopBottomScallopedClipper extends CustomClipper<Path> {
   final double cutoutX;
   final double radius;
+  final bool isLtr;
 
-  TopBottomScallopedClipper({required this.cutoutX, this.radius = 10});
+  TopBottomScallopedClipper(
+      {required this.cutoutX, this.radius = 10, this.isLtr = true});
 
   @override
   Path getClip(Size size) {
+    double actualCutoutX = isLtr ? cutoutX : size.width - cutoutX;
     Path path = Path();
     path.moveTo(Dimensions.radiusLarge, 0);
 
     // Top line with cutout
-    path.lineTo(cutoutX - radius, 0);
-    path.arcToPoint(Offset(cutoutX + radius, 0),
+    path.lineTo(actualCutoutX - radius, 0);
+    path.arcToPoint(Offset(actualCutoutX + radius, 0),
         radius: Radius.circular(radius), clockwise: false);
     path.lineTo(size.width - Dimensions.radiusLarge, 0);
 
@@ -372,8 +481,8 @@ class TopBottomScallopedClipper extends CustomClipper<Path> {
         radius: const Radius.circular(Dimensions.radiusLarge));
 
     // Bottom line with cutout
-    path.lineTo(cutoutX + radius, size.height);
-    path.arcToPoint(Offset(cutoutX - radius, size.height),
+    path.lineTo(actualCutoutX + radius, size.height);
+    path.arcToPoint(Offset(actualCutoutX - radius, size.height),
         radius: Radius.circular(radius), clockwise: false);
     path.lineTo(Dimensions.radiusLarge, size.height);
 
@@ -401,6 +510,7 @@ class TopBottomCurvedBorderPainter extends CustomPainter {
   final double cutoutX;
   final double radius;
   final double strokeWidth;
+  final bool isLtr;
 
   TopBottomCurvedBorderPainter({
     required this.colors,
@@ -408,10 +518,12 @@ class TopBottomCurvedBorderPainter extends CustomPainter {
     required this.cutoutX,
     this.radius = 10,
     this.strokeWidth = 3.5,
+    this.isLtr = true,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
+    double actualCutoutX = isLtr ? cutoutX : size.width - cutoutX;
     double halfStroke = strokeWidth / 2;
     Paint paint = Paint()
       ..shader = LinearGradient(
@@ -426,8 +538,8 @@ class TopBottomCurvedBorderPainter extends CustomPainter {
     Path path = Path();
     path.moveTo(Dimensions.radiusLarge, halfStroke);
 
-    path.lineTo(cutoutX - radius, halfStroke);
-    path.arcToPoint(Offset(cutoutX + radius, halfStroke),
+    path.lineTo(actualCutoutX - radius, halfStroke);
+    path.arcToPoint(Offset(actualCutoutX + radius, halfStroke),
         radius: const Radius.circular(10.0), clockwise: false);
     path.lineTo(size.width - Dimensions.radiusLarge, halfStroke);
 
@@ -438,8 +550,8 @@ class TopBottomCurvedBorderPainter extends CustomPainter {
         Offset(size.width - Dimensions.radiusLarge, size.height - halfStroke),
         radius: const Radius.circular(Dimensions.radiusLarge - 0));
 
-    path.lineTo(cutoutX + radius, size.height - halfStroke);
-    path.arcToPoint(Offset(cutoutX - radius, size.height - halfStroke),
+    path.lineTo(actualCutoutX + radius, size.height - halfStroke);
+    path.arcToPoint(Offset(actualCutoutX - radius, size.height - halfStroke),
         radius: const Radius.circular(10.0), clockwise: false);
     path.lineTo(Dimensions.radiusLarge, size.height - halfStroke);
 
