@@ -337,7 +337,24 @@ class AuthRepository implements AuthRepositoryInterface {
 
   @override
   Future<Response> updateZone() async {
-    return await apiClient.getData(AppConstants.updateZoneUri);
+    Map<String, String> header = Map.from(apiClient.getHeader());
+    AddressModel? address = AddressHelper.getUserAddressFromSharedPref();
+    if (address != null &&
+        address.zoneIds != null &&
+        address.zoneIds!.isNotEmpty) {
+      header.update(
+          AppConstants.zoneId, (value) => address.zoneIds![0].toString());
+    }
+
+    print('====> [ZONE_UPDATE_DEBUG] Headers used for update-zone: $header');
+
+    Response response = await apiClient.getData(AppConstants.updateZoneUri,
+        headers: header, handleError: false);
+
+    print(
+        '====> [ZONE_UPDATE_DEBUG] Response: [${response.statusCode}] ${response.body}');
+
+    return response;
   }
 
   @override

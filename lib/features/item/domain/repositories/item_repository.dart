@@ -55,8 +55,8 @@ class ItemRepository implements ItemRepositoryInterface {
     Item? item;
     // Get headers with user ID from login response
     Map<String, String> headers = await apiClient.getHeaderWithUserId();
-    Response response = await apiClient.getData(
-        '${AppConstants.itemDetailsUri}$itemID', headers: headers);
+    Response response = await apiClient
+        .getData('${AppConstants.itemDetailsUri}$itemID', headers: headers);
     if (response.statusCode == 200) {
       item = Item.fromJson(response.body);
     }
@@ -68,7 +68,8 @@ class ItemRepository implements ItemRepositoryInterface {
     // Get headers with user ID from login response
     Map<String, String> headers = await apiClient.getHeaderWithUserId();
     Response response = await apiClient.getData(
-        '${AppConstants.conditionWiseItemUri}$id?limit=15&offset=1', headers: headers);
+        '${AppConstants.conditionWiseItemUri}$id?limit=15&offset=1',
+        headers: headers);
     if (response.statusCode == 200) {
       conditionWiseProduct = [];
       conditionWiseProduct.addAll(ItemModel.fromJson(response.body).items!);
@@ -356,7 +357,8 @@ class ItemRepository implements ItemRepositoryInterface {
         // Get headers with user ID from login response for personalized recommendations
         Map<String, String> headers = await apiClient.getHeaderWithUserId();
         Response response = await apiClient.getData(
-            '${AppConstants.recommendedItemsUri}$type&limit=30', headers: headers);
+            '${AppConstants.recommendedItemsUri}$type&limit=30',
+            headers: headers);
         if (response.statusCode == 200) {
           recommendedItemList = [];
           recommendedItemList.addAll(ItemModel.fromJson(response.body).items!);

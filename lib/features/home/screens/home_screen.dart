@@ -158,6 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   bool searchBgShow = false;
   final GlobalKey _headerKey = GlobalKey();
+  bool _singleModuleSwitchDone = false;
 
   @override
   void initState() {
@@ -281,8 +282,9 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<SplashController>(builder: (splashController) {
-      if (splashController.moduleList != null &&
+      if (!_singleModuleSwitchDone && splashController.moduleList != null &&
           splashController.moduleList!.length == 1) {
+        _singleModuleSwitchDone = true;
         splashController.switchModule(0, true);
       }
       bool showMobileModule = !ResponsiveHelper.isDesktop(context) &&

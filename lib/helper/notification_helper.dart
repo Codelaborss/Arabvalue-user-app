@@ -25,6 +25,7 @@ import 'package:sixam_mart/features/notification/widgets/notifiation_popup_dialo
 class NotificationHelper {
   static Future<void> initialize(
       FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+    print("🔔 Notification System Initializing...");
     var androidInitialize =
         const AndroidInitializationSettings('notification_icon');
     var iOSInitialize = const DarwinInitializationSettings();
@@ -83,9 +84,8 @@ class NotificationHelper {
     });
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      if (kDebugMode) {
-        print("onMessage: ${message.data['type']}/${message.data}");
-      }
+      print(
+          "🔔 Notification Received in Foreground: ${message.notification?.title} / ${message.data}");
       if (message.data['type'] == 'demo_reset') {
         Get.dialog(const DemoResetDialogWidget(), barrierDismissible: false);
       }
@@ -204,9 +204,7 @@ class NotificationHelper {
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      if (kDebugMode) {
-        print("onOpenApp: ${message.data}");
-      }
+      print("🔔 Notification Opened the App: ${message.data}");
       try {
         if (message.data.isNotEmpty) {
           NotificationBodyModel notificationBody =
@@ -456,9 +454,8 @@ class NotificationHelper {
 
 @pragma('vm:entry-point')
 Future<dynamic> myBackgroundMessageHandler(RemoteMessage message) async {
-  if (kDebugMode) {
-    print("onBackground: ${message.data}");
-  }
+  print(
+      "🔔 Notification Received in Background: ${message.notification?.title} / ${message.data}");
 }
 
 class PayloadModel {

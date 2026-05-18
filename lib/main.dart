@@ -13,6 +13,7 @@ import 'package:sixam_mart/features/splash/controllers/splash_controller.dart';
 import 'package:sixam_mart/common/controllers/theme_controller.dart';
 import 'package:sixam_mart/common/controllers/dynamic_theme_controller.dart'; // Add this
 import 'package:sixam_mart/features/notification/domain/models/notification_body_model.dart';
+import 'package:sixam_mart/firebase_options.dart';
 import 'package:sixam_mart/helper/address_helper.dart';
 import 'package:sixam_mart/helper/auth_helper.dart';
 import 'package:sixam_mart/helper/notification_helper.dart';
@@ -41,34 +42,21 @@ Future<void> main() async {
     HttpOverrides.global = MyHttpOverrides();
   }
   setPathUrlStrategy();
+  print("🚀 Starting Firebase Initialization...");
 
-  if (GetPlatform.isWeb) {
-    await Firebase.initializeApp(
-        options: const FirebaseOptions(
-            apiKey: "AIzaSyD0Z911mOoWCVkeGdjhIKwWFPRgvd6ZyAw",
-            authDomain: "stackmart-500c7.firebaseapp.com",
-            projectId: "stackmart-500c7",
-            storageBucket: "stackmart-500c7.appspot.com",
-            messagingSenderId: "491987943015",
-            appId: "1:491987943015:web:d8bc7ab8dbc9991c8f1ec2"));
-  } else if (GetPlatform.isAndroid) {
-    await Firebase.initializeApp(
-      options: const FirebaseOptions(
-        apiKey: "AIzaSyCc3OCd5I2xSlnftZ4bFAbuCzMhgQHLivA",
-        appId: "1:491987943015:android:a6fb4303cc4bf3d18f1ec2",
-        messagingSenderId: "491987943015",
-        projectId: "stackmart-500c7",
-      ),
-    );
-  } else {
-    await Firebase.initializeApp();
-  }
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  print("✅ Firebase Initialized successfully.");
 
   Map<String, Map<String, String>> languages = await di.init();
+  print("✅ Dependency Injection (DI) Initialized.");
 
   NotificationBodyModel? body;
   try {
     if (GetPlatform.isMobile) {
+      print("📱 Mobile Platform detected. Setting up Notifications...");
+
       final RemoteMessage? remoteMessage =
           await FirebaseMessaging.instance.getInitialMessage();
       if (remoteMessage != null) {

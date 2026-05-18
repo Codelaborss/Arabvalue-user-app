@@ -161,33 +161,21 @@ class _WebNewHomeScreenState extends State<WebNewHomeScreen> {
                                   : WebCategoryViewWidget(
                                       categoryController: categoryController);
                         }),
-                        isVoucher
-                            ? const WebHotVoucherViewWidget()
-                            : const SizedBox(),
-                        isVoucher
-                            ? const WebVoucherRecommendedStoreViewWidget()
-                            : const SizedBox(),
-                        isVoucher
-                            ? const WebRecommendedVoucherViewWidget()
-                            : const SizedBox(),
-                        isVoucher
-                            ? const WebNewVoucherViewWidget()
-                            : const SizedBox(),
+                        const WebHotVoucherViewWidget(),
+                        const WebVoucherRecommendedStoreViewWidget(),
+                        const WebRecommendedVoucherViewWidget(),
+                        const WebNewVoucherViewWidget(),
+
                         (isFood)
                             ? const WebItemThatYouLoveViewWidget()
                             : const SizedBox(),
-                        (_isLogin && !isVoucher)
-                            ? WebVisitAgainView(fromFood: isFood)
-                            : const SizedBox(),
+                        const SizedBox(), // Removed WebVisitAgainView
                         isPharmacy
                             ? const WebBasicMedicineNearbyViewWidget()
                             : isShop
                                 ? const WebMostPopularItemViewWidget(
                                     isShop: true, isFood: false)
-                                : WebSpecialOfferView(
-                                    isFood: false,
-                                    isShop: false,
-                                    isVoucher: isVoucher),
+                                : const WebRecommendedVoucherViewWidget(), // Replaced WebSpecialOfferView
                         const WebHighlightWidget(),
                         (isPharmacy || isShop)
                             ? const MiddleSectionMultipleBannerViewWidget()
