@@ -255,12 +255,27 @@ class NotificationHelper {
       NotificationBodyModel notificationBody =
           convertNotification(message.data);
 
-      title = message.data['title'];
-      body = message.data['body'];
+      // Fallback to message.notification when data fields are missing
+      // (FCM 'notification messages' have empty data map)
+      title = (message.data['title'] != null &&
+              message.data['title'].toString().isNotEmpty)
+          ? message.data['title']
+          : message.notification?.title;
+
+      // Admin panel may send body as 'description' instead of 'body'
+      body = (message.data['body'] != null &&
+              message.data['body'].toString().isNotEmpty)
+          ? message.data['body']
+          : (message.data['description'] != null &&
+                  message.data['description'].toString().isNotEmpty)
+              ? message.data['description']
+              : message.notification?.body;
+
       orderID = message.data['order_id'];
       image = (message.data['image'] != null &&
-              message.data['image'].isNotEmpty)
-          ? message.data['image'].startsWith('http')
+              message.data['image'].toString().isNotEmpty &&
+              message.data['image'] != 'null')
+          ? message.data['image'].toString().startsWith('http')
               ? message.data['image']
               : '${AppConstants.baseUrl}/storage/app/public/notification/${message.data['image']}'
           : null;
@@ -271,11 +286,11 @@ class NotificationHelper {
               title, body, orderID, notificationBody, image, fln);
         } catch (e) {
           await showBigTextNotification(
-              title, body!, orderID, notificationBody, fln);
+              title, body ?? '', orderID, notificationBody, fln);
         }
       } else {
         await showBigTextNotification(
-            title, body!, orderID, notificationBody, fln);
+            title, body ?? '', orderID, notificationBody, fln);
       }
     }
   }
@@ -413,6 +428,9 @@ class NotificationHelper {
         return _handleTripNotification(data);
       case 'message':
         return _handleMessageNotification(data);
+      case 'push_notification':
+        return NotificationBodyModel(
+            notificationType: NotificationType.general);
       default:
         return NotificationBodyModel(
             notificationType: NotificationType.general);

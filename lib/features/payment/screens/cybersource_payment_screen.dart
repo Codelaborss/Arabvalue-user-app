@@ -37,212 +37,384 @@ class _CybersourcePaymentScreenState extends State<CybersourcePaymentScreen> {
   bool _hideCardNumber = false;
   bool _hideCVV = true;
 
+  CybersourcePaymentState _paymentState = CybersourcePaymentState.idle;
+  String? _paymentErrorMessage;
+  bool _isCancelling = false;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
-      appBar: CustomAppBar(title: 'cybersource_payment'.tr),
-      body: GetBuilder<PaymentController>(builder: (paymentController) {
-        return SingleChildScrollView(
-          child: FooterView(
-            child: Center(
-              child: SizedBox(
-                width: ResponsiveHelper.isDesktop(context)
-                    ? Dimensions.webMaxWidth
-                    : double.infinity,
-                child: Column(children: [
-                  const SizedBox(height: Dimensions.paddingSizeLarge),
-                  // --- TOP SUMMARY CARD (DARK) ---
-                  Container(
-                    width: double.infinity,
-                    padding:
-                        const EdgeInsets.all(Dimensions.paddingSizeExtraLarge),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF121D2D),
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(30),
-                        bottomRight: Radius.circular(30),
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF5F7FA),
+        appBar:
+            CustomAppBar(title: 'cybersource_payment'.tr, backButton: false),
+        body: GetBuilder<PaymentController>(builder: (paymentController) {
+          return SingleChildScrollView(
+            child: FooterView(
+              child: Center(
+                child: SizedBox(
+                  width: ResponsiveHelper.isDesktop(context)
+                      ? Dimensions.webMaxWidth
+                      : double.infinity,
+                  child: Column(children: [
+                    const SizedBox(height: Dimensions.paddingSizeLarge),
+                    // --- TOP SUMMARY CARD (DARK) ---
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(
+                          Dimensions.paddingSizeExtraLarge),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF121D2D),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(30),
+                          bottomRight: Radius.circular(30),
+                        ),
                       ),
-                    ),
-                    child: GetBuilder<ProfileController>(
-                        builder: (profileController) {
-                      var user = profileController.userInfoModel;
-                      return Column(children: [
-                        const SizedBox(height: 10),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 15, vertical: 5),
-                          decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(20)),
-                          child: Text('Cybersource',
-                              style: robotoRegular.copyWith(
-                                  color: Colors.white70,
-                                  fontSize: Dimensions.fontSizeSmall)),
-                        ),
-                        const SizedBox(height: 30),
-                        _buildSummaryRow('order_type'.tr, 'order'.tr),
-                        _buildSummaryRow(
-                            'reference_id'.tr, '#${widget.orderID}'),
-                        _buildSummaryRow('currency'.tr, 'USD'),
-                        _buildSummaryRow('receiver'.tr, 'receiver_name'.tr),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 15),
-                          child: Divider(color: Colors.white10),
-                        ),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('total'.tr,
-                                  style: robotoBold.copyWith(
-                                      color: Colors.white, fontSize: 20)),
-                              Text(
-                                  '${Get.find<SplashController>().configModel!.currencySymbol} ${widget.amount.toStringAsFixed(2)}',
-                                  style: robotoBold.copyWith(
-                                      color: Colors.white, fontSize: 20)),
-                            ]),
-                        const SizedBox(height: 30),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text('customer_information'.tr,
-                              style: robotoBold.copyWith(
-                                  color: Colors.white,
-                                  fontSize: Dimensions.fontSizeLarge)),
-                        ),
-                        const SizedBox(height: 15),
-                        _buildCustomerInfoRow(
-                            'name'.tr, user?.fName ?? 'guest'.tr),
-                        _buildCustomerInfoRow('email'.tr, user?.email ?? ''),
-                        _buildCustomerInfoRow('phone'.tr, user?.phone ?? ''),
-                        const SizedBox(height: 10),
-                      ]);
-                    }),
-                  ),
-
-                  // --- BOTTOM PAYMENT CARD (WHITE) ---
-                  Padding(
-                    padding: const EdgeInsets.all(Dimensions.paddingSizeLarge),
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10))
-                        ],
-                      ),
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('secure_checkout'.tr,
-                                style: robotoBold.copyWith(fontSize: 22)),
-                            const SizedBox(height: 5),
-                            Text('complete_payment_securely'.tr,
+                      child: GetBuilder<ProfileController>(
+                          builder: (profileController) {
+                        var user = profileController.userInfoModel;
+                        return Column(children: [
+                          const SizedBox(height: 10),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 5),
+                            decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20)),
+                            child: Text('Cybersource',
                                 style: robotoRegular.copyWith(
-                                    color: Colors.grey,
+                                    color: Colors.white70,
                                     fontSize: Dimensions.fontSizeSmall)),
-                            const SizedBox(height: 25),
-                            Text('card_details'.tr,
+                          ),
+                          const SizedBox(height: 30),
+                          _buildSummaryRow('order_type'.tr, 'order'.tr),
+                          _buildSummaryRow(
+                              'reference_id'.tr, '#${widget.orderID}'),
+                          _buildSummaryRow('currency'.tr, 'USD'),
+                          _buildSummaryRow('receiver'.tr, 'receiver_name'.tr),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 15),
+                            child: Divider(color: Colors.white10),
+                          ),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('total'.tr,
+                                    style: robotoBold.copyWith(
+                                        color: Colors.white, fontSize: 20)),
+                                Text(
+                                    '${Get.find<SplashController>().configModel!.currencySymbol} ${widget.amount.toStringAsFixed(2)}',
+                                    style: robotoBold.copyWith(
+                                        color: Colors.white, fontSize: 20)),
+                              ]),
+                          const SizedBox(height: 30),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text('customer_information'.tr,
                                 style: robotoBold.copyWith(
+                                    color: Colors.white,
                                     fontSize: Dimensions.fontSizeLarge)),
-                            const SizedBox(height: 20),
-                            _buildInputLabel('card_number'.tr),
-                            _buildTextField(
-                              _cardNumberController,
-                              '1234 5678 9012 3456',
-                              Icons.credit_card,
-                              isObscure: _hideCardNumber,
-                              keyboardType: TextInputType.number,
-                              maxLength: 16,
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                    _hideCardNumber
-                                        ? Icons.visibility_off
-                                        : Icons.visibility,
-                                    color: Colors.grey),
-                                onPressed: () => setState(
-                                    () => _hideCardNumber = !_hideCardNumber),
-                              ),
-                            ),
-                            const SizedBox(height: 15),
-                            Row(children: [
-                              Expanded(
+                          ),
+                          const SizedBox(height: 15),
+                          _buildCustomerInfoRow(
+                              'name'.tr, user?.fName ?? 'guest'.tr),
+                          _buildCustomerInfoRow('email'.tr, user?.email ?? ''),
+                          _buildCustomerInfoRow('phone'.tr, user?.phone ?? ''),
+                          const SizedBox(height: 10),
+                        ]);
+                      }),
+                    ),
+
+                    // --- BOTTOM PAYMENT CARD (WHITE) ---
+                    Padding(
+                      padding:
+                          const EdgeInsets.all(Dimensions.paddingSizeLarge),
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10))
+                          ],
+                        ),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (_paymentState ==
+                                  CybersourcePaymentState.success) ...[
+                                Center(
                                   child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                    children: [
+                                      const SizedBox(height: 20),
+                                      const AnimatedCheckmark(isSuccess: true),
+                                      const SizedBox(height: 20),
+                                      Text(
+                                        'payment_successful'.tr,
+                                        style: robotoBold.copyWith(
+                                            fontSize: 22,
+                                            color: const Color(0xFF2E7D32)),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        'your_payment_has_been_processed_successfully'
+                                            .tr,
+                                        textAlign: TextAlign.center,
+                                        style: robotoRegular.copyWith(
+                                            color: Colors.grey,
+                                            fontSize: Dimensions.fontSizeSmall),
+                                      ),
+                                      const SizedBox(height: 30),
+                                      Container(
+                                        width: double.infinity,
+                                        height: 50,
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF2E7D32),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            const Icon(Icons.check_circle,
+                                                color: Colors.white),
+                                            const SizedBox(width: 10),
+                                            Text(
+                                              'success'.tr.toUpperCase(),
+                                              style: robotoBold.copyWith(
+                                                  color: Colors.white),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 20),
+                                    ],
+                                  ),
+                                ),
+                              ] else ...[
+                                Text('secure_checkout'.tr,
+                                    style: robotoBold.copyWith(fontSize: 22)),
+                                const SizedBox(height: 5),
+                                Text('complete_payment_securely'.tr,
+                                    style: robotoRegular.copyWith(
+                                        color: Colors.grey,
+                                        fontSize: Dimensions.fontSizeSmall)),
+                                const SizedBox(height: 25),
+                                if (_paymentState ==
+                                    CybersourcePaymentState.failed) ...[
+                                  Center(
+                                    child: Column(
                                       children: [
-                                    _buildInputLabel('expiry_date'.tr),
-                                    _buildTextField(
-                                      _expiryController,
-                                      'MM/YY',
-                                      null,
-                                      keyboardType: TextInputType.number,
-                                      formatters: [CardExpirationFormatter()],
-                                      maxLength: 5,
+                                        const AnimatedCheckmark(
+                                            isSuccess: false),
+                                        const SizedBox(height: 15),
+                                        Text(
+                                          'payment_failed'.tr,
+                                          style: robotoBold.copyWith(
+                                              fontSize: 20,
+                                              color: const Color(0xFFC62828)),
+                                        ),
+                                        const SizedBox(height: 15),
+                                      ],
                                     ),
-                                  ])),
-                              const SizedBox(width: 15),
-                              Expanded(
-                                  child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                    _buildInputLabel('CVV'),
-                                    _buildTextField(
-                                      _cvvController,
-                                      '123',
-                                      null,
-                                      isObscure: _hideCVV,
-                                      keyboardType: TextInputType.number,
-                                      maxLength: 4,
-                                      suffixIcon: IconButton(
-                                        icon: Icon(
-                                            _hideCVV
-                                                ? Icons.visibility_off
-                                                : Icons.visibility,
-                                            color: Colors.grey),
-                                        onPressed: () => setState(
-                                            () => _hideCVV = !_hideCVV),
+                                  ),
+                                ],
+                                Text('card_details'.tr,
+                                    style: robotoBold.copyWith(
+                                        fontSize: Dimensions.fontSizeLarge)),
+                                const SizedBox(height: 20),
+                                _buildInputLabel('card_number'.tr),
+                                _buildTextField(
+                                  _cardNumberController,
+                                  '1234 5678 9012 3456',
+                                  Icons.credit_card,
+                                  isObscure: _hideCardNumber,
+                                  keyboardType: TextInputType.number,
+                                  maxLength: 16,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                        _hideCardNumber
+                                            ? Icons.visibility_off
+                                            : Icons.visibility,
+                                        color: Colors.grey),
+                                    onPressed: () => setState(() =>
+                                        _hideCardNumber = !_hideCardNumber),
+                                  ),
+                                ),
+                                const SizedBox(height: 15),
+                                Row(children: [
+                                  Expanded(
+                                      child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                        _buildInputLabel('expiry_date'.tr),
+                                        _buildTextField(
+                                          _expiryController,
+                                          'MM/YY',
+                                          null,
+                                          keyboardType: TextInputType.number,
+                                          formatters: [
+                                            CardExpirationFormatter()
+                                          ],
+                                          maxLength: 5,
+                                        ),
+                                      ])),
+                                  const SizedBox(width: 15),
+                                  Expanded(
+                                      child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                        _buildInputLabel('CVV'),
+                                        _buildTextField(
+                                          _cvvController,
+                                          '123',
+                                          null,
+                                          isObscure: _hideCVV,
+                                          keyboardType: TextInputType.number,
+                                          maxLength: 4,
+                                          suffixIcon: IconButton(
+                                            icon: Icon(
+                                                _hideCVV
+                                                    ? Icons.visibility_off
+                                                    : Icons.visibility,
+                                                color: Colors.grey),
+                                            onPressed: () => setState(
+                                                () => _hideCVV = !_hideCVV),
+                                          ),
+                                        ),
+                                      ])),
+                                ]),
+                                const SizedBox(height: 30),
+                                if (_paymentState ==
+                                    CybersourcePaymentState.failed) ...[
+                                  if (_paymentErrorMessage != null) ...[
+                                    Container(
+                                      width: double.infinity,
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFC62828)
+                                            .withOpacity(0.05),
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: const Color(0xFFC62828)
+                                              .withOpacity(0.2),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        _paymentErrorMessage!,
+                                        textAlign: TextAlign.center,
+                                        style: robotoMedium.copyWith(
+                                            color: const Color(0xFFC62828),
+                                            fontSize: Dimensions.fontSizeSmall),
                                       ),
                                     ),
-                                  ])),
+                                    const SizedBox(height: 20),
+                                  ],
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: CustomButton(
+                                          buttonText: 'retry_order'.tr,
+                                          color: Theme.of(context).primaryColor,
+                                          radius: 12,
+                                          onPressed: () {
+                                            setState(() {
+                                              _paymentState =
+                                                  CybersourcePaymentState.idle;
+                                              _paymentErrorMessage = null;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(width: 15),
+                                      Expanded(
+                                        child: CustomButton(
+                                          buttonText: 'cancel_order'.tr,
+                                          color: const Color(0xFFC62828),
+                                          radius: 12,
+                                          isLoading: _isCancelling,
+                                          onPressed: () async {
+                                            setState(() {
+                                              _isCancelling = true;
+                                            });
+                                            try {
+                                              Response response =
+                                                  await paymentController
+                                                      .deleteOrder(
+                                                          widget.paymentID);
+                                              if (response.statusCode == 200) {
+                                                String msg = response
+                                                        .body['message'] ??
+                                                    'order_deleted_successfully'
+                                                        .tr;
+                                                showCustomSnackBar(msg,
+                                                    isError: false);
+                                                Get.offAllNamed(RouteHelper
+                                                    .getInitialRoute());
+                                              } else {
+                                                String msg = response
+                                                        .body['message'] ??
+                                                    'failed_to_delete_order'.tr;
+                                                showCustomSnackBar(msg);
+                                              }
+                                            } catch (e) {
+                                              showCustomSnackBar(
+                                                  'failed_to_delete_order'.tr);
+                                            } finally {
+                                              setState(() {
+                                                _isCancelling = false;
+                                              });
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ] else ...[
+                                  CustomButton(
+                                    buttonText:
+                                        '${'pay'.tr} ${Get.find<SplashController>().configModel!.currencySymbol} ${widget.amount.toStringAsFixed(2)} USD',
+                                    radius: 12,
+                                    isLoading: paymentController.isLoading,
+                                    onPressed: () =>
+                                        _processPayment(paymentController),
+                                  ),
+                                ],
+                                const SizedBox(height: 15),
+                                Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(Icons.lock,
+                                          size: 14, color: Color(0xFFFBC02D)),
+                                      const SizedBox(width: 5),
+                                      Expanded(
+                                          child: Text(
+                                              'payment_security_notice'.tr,
+                                              textAlign: TextAlign.center,
+                                              style: robotoRegular.copyWith(
+                                                  color: Colors.grey,
+                                                  fontSize: 11))),
+                                    ]),
+                              ],
                             ]),
-                            const SizedBox(height: 30),
-                            CustomButton(
-                              buttonText:
-                                  '${'pay'.tr} ${Get.find<SplashController>().configModel!.currencySymbol} ${widget.amount.toStringAsFixed(2)} USD',
-                              radius: 12,
-                              isLoading: paymentController.isLoading,
-                              onPressed: () =>
-                                  _processPayment(paymentController),
-                            ),
-                            const SizedBox(height: 15),
-                            Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.lock,
-                                      size: 14, color: Color(0xFFFBC02D)),
-                                  const SizedBox(width: 5),
-                                  Expanded(
-                                      child: Text('payment_security_notice'.tr,
-                                          textAlign: TextAlign.center,
-                                          style: robotoRegular.copyWith(
-                                              color: Colors.grey,
-                                              fontSize: 11))),
-                                ]),
-                          ]),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                ]),
+                    const SizedBox(height: 20),
+                  ]),
+                ),
               ),
             ),
-          ),
-        );
-      }),
+          );
+        }),
+      ),
     );
   }
 
@@ -346,13 +518,20 @@ class _CybersourcePaymentScreenState extends State<CybersourcePaymentScreen> {
       // statusCode 1 means network/CORS failure
       if (response.statusCode == 1) {
         debugPrint('=====> [Cybersource] CORS or Network error!');
-        showCustomSnackBar('connection_to_api_server_failed'.tr);
+        setState(() {
+          _paymentState = CybersourcePaymentState.failed;
+          _paymentErrorMessage = 'connection_to_api_server_failed'.tr;
+        });
         return;
       }
 
       if (response.statusCode == 200 &&
           response.body != null &&
           response.body['success'] == true) {
+        setState(() {
+          _paymentState = CybersourcePaymentState.success;
+        });
+        await Future.delayed(const Duration(seconds: 2));
         Get.offNamed(RouteHelper.getOrderSuccessRoute(widget.orderID, null));
       } else {
         String errorMsg = 'payment_failed'.tr;
@@ -363,11 +542,17 @@ class _CybersourcePaymentScreenState extends State<CybersourcePaymentScreen> {
           errorMsg = response.statusText!;
         }
         debugPrint('=====> [Cybersource] Payment failed: $errorMsg');
-        showCustomSnackBar(errorMsg);
+        setState(() {
+          _paymentState = CybersourcePaymentState.failed;
+          _paymentErrorMessage = errorMsg;
+        });
       }
     } catch (e) {
       debugPrint('=====> [Cybersource] Exception: $e');
-      showCustomSnackBar('payment_failed'.tr);
+      setState(() {
+        _paymentState = CybersourcePaymentState.failed;
+        _paymentErrorMessage = 'payment_failed'.tr;
+      });
     }
   }
 }
@@ -393,6 +578,78 @@ class CardExpirationFormatter extends TextInputFormatter {
       text: valueToReturn,
       selection: TextSelection.fromPosition(
         TextPosition(offset: valueToReturn.length),
+      ),
+    );
+  }
+}
+
+enum CybersourcePaymentState { idle, loading, success, failed }
+
+class AnimatedCheckmark extends StatefulWidget {
+  final bool isSuccess;
+  const AnimatedCheckmark({super.key, required this.isSuccess});
+
+  @override
+  State<AnimatedCheckmark> createState() => _AnimatedCheckmarkState();
+}
+
+class _AnimatedCheckmarkState extends State<AnimatedCheckmark>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _rotateAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+    );
+    _rotateAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
+    );
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: RotationTransition(
+        turns: _rotateAnimation,
+        child: Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            color: widget.isSuccess
+                ? const Color(0xFF2E7D32).withOpacity(0.1)
+                : const Color(0xFFC62828).withOpacity(0.1),
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: widget.isSuccess
+                  ? const Color(0xFF2E7D32)
+                  : const Color(0xFFC62828),
+              width: 3,
+            ),
+          ),
+          child: Icon(
+            widget.isSuccess ? Icons.check : Icons.close,
+            color: widget.isSuccess
+                ? const Color(0xFF2E7D32)
+                : const Color(0xFFC62828),
+            size: 48,
+          ),
+        ),
       ),
     );
   }

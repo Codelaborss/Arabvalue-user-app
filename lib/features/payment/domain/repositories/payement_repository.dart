@@ -65,6 +65,14 @@ class PaymentRepository implements PaymentRepositoryInterface {
   }
 
   @override
+  Future<Response> deleteOrder(String paymentId) async {
+    return await apiClient.deleteData(
+      AppConstants.deleteOrderUri,
+      body: {"payment_id": paymentId},
+    );
+  }
+
+  @override
   Future update(Map<String, dynamic> body, int? id) {
     throw UnimplementedError();
   }

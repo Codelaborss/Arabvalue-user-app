@@ -1748,5 +1748,8 @@
   "expiry_date": "تاريخ الانتهاء",
   "please_fill_all_fields": "يرجى تعبئة جميع الحقول",
   "payment_processing": "جاري معالجة الدفع...",
-  "shop": "متجر"
+  "shop": "متجر",
+  "retry_order": "إعادة محاولة الطلب",
+  "order_deleted_successfully": "تم حذف الطلب بنجاح",
+  "failed_to_delete_order": "فشل في حذف الطلب"
 }

@@ -22,6 +22,7 @@ import 'package:sixam_mart/util/styles.dart';
 import 'package:sixam_mart/common/widgets/confirmation_dialog.dart';
 import 'package:sixam_mart/common/widgets/custom_image.dart';
 import 'package:sixam_mart/features/menu/widgets/portion_widget.dart';
+import 'package:sixam_mart/features/notification/controllers/notification_controller.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -195,12 +196,26 @@ class _MenuScreenState extends State<MenuScreen> {
                           iconData: Icons.card_giftcard,
                           title: 'gift'.tr,
                           route: RouteHelper.getGiftRoute()),
-                      PortionWidget(
-                        icon: '',
-                        iconData: Icons.notifications,
-                        title: 'notification'.tr,
-                        route: RouteHelper.getNotificationRoute(),
-                      ),
+                      GetBuilder<NotificationController>(
+                          builder: (notificationController) {
+                        int notificationCount = 0;
+                        if (notificationController.notificationList != null) {
+                          notificationCount =
+                              notificationController.notificationList!.length -
+                                  (notificationController
+                                          .getSeenNotificationCount() ??
+                                      0);
+                        }
+                        return PortionWidget(
+                          icon: '',
+                          iconData: Icons.notifications,
+                          title: 'notification'.tr,
+                          route: RouteHelper.getNotificationRoute(),
+                          suffix: notificationCount > 0
+                              ? notificationCount.toString()
+                              : null,
+                        );
+                      }),
                       PortionWidget(
                           icon: Images.languageIcon,
                           title: 'language'.tr,

@@ -75,6 +75,15 @@ class PaymentController extends GetxController implements GetxService {
     return response;
   }
 
+  Future<Response> deleteOrder(String paymentId) async {
+    _isLoading = true;
+    update();
+    Response response = await paymentServiceInterface.deleteOrder(paymentId);
+    _isLoading = false;
+    update();
+    return response;
+  }
+
   void changeLoadingStatus(bool status) {
     _isLoading = status;
     update();

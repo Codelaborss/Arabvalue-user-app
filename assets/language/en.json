@@ -1747,5 +1747,8 @@
   "expiry_date": "Expiry Date",
   "please_fill_all_fields": "Please fill all fields",
   "payment_processing": "Payment Processing...",
-  "shop": "Shop"
+  "shop": "Shop",
+  "retry_order": "Retry Order",
+  "order_deleted_successfully": "Order deleted successfully",
+  "failed_to_delete_order": "Failed to delete order"
 }

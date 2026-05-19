@@ -26,4 +26,9 @@ class PaymentService implements PaymentServiceInterface {
   Future<Response> submitCybersourcePayment(String token) async {
     return await paymentRepositoryInterface.submitCybersourcePayment(token);
   }
+
+  @override
+  Future<Response> deleteOrder(String paymentId) async {
+    return await paymentRepositoryInterface.deleteOrder(paymentId);
+  }
 }

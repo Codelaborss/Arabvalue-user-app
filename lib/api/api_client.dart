@@ -282,14 +282,20 @@ class ApiClient extends GetxService {
   }
 
   Future<Response> deleteData(String uri,
-      {Map<String, String>? headers, bool handleError = true}) async {
+      {Map<String, String>? headers,
+      bool handleError = true,
+      dynamic body}) async {
     try {
       if (kDebugMode) {
         print('====> API Call: $uri\nHeader: ${headers ?? _mainHeaders}');
+        if (body != null) {
+          print('====> API Body: $body');
+        }
       }
       http.Response response = await http
           .delete(
             Uri.parse(appBaseUrl + uri),
+            body: body != null ? jsonEncode(body) : null,
             headers: headers ?? _mainHeaders,
           )
           .timeout(Duration(seconds: timeoutInSeconds));
