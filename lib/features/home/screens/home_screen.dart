@@ -21,6 +21,7 @@ import 'package:sixam_mart/features/item/controllers/item_controller.dart';
 import 'package:sixam_mart/features/store/controllers/store_controller.dart';
 import 'package:sixam_mart/features/splash/controllers/splash_controller.dart';
 import 'package:sixam_mart/features/profile/controllers/profile_controller.dart';
+import 'package:sixam_mart/features/auth/controllers/auth_controller.dart';
 import 'package:sixam_mart/features/address/controllers/address_controller.dart';
 import 'package:sixam_mart/features/home/screens/modules/food_home_screen.dart';
 import 'package:sixam_mart/features/home/screens/modules/grocery_home_screen.dart';
@@ -57,6 +58,7 @@ class HomeScreen extends StatefulWidget {
     Get.find<LocationController>().syncZoneData();
     Get.find<FlashSaleController>().setEmptyFlashSale(fromModule: fromModule);
     if (AuthHelper.isLoggedIn()) {
+      Get.find<AuthController>().updateToken();
       Get.find<StoreController>()
           .getVisitAgainStoreList(fromModule: fromModule);
     }
@@ -282,7 +284,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<SplashController>(builder: (splashController) {
-      if (!_singleModuleSwitchDone && splashController.moduleList != null &&
+      if (!_singleModuleSwitchDone &&
+          splashController.moduleList != null &&
           splashController.moduleList!.length == 1) {
         _singleModuleSwitchDone = true;
         splashController.switchModule(0, true);

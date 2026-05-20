@@ -46,6 +46,7 @@ class _PinCodeLoginWidgetState extends State<PinCodeLoginWidget> {
         await authController.loginWithPin(_pinController.text.trim());
 
     if (response.isSuccess) {
+      await authController.updateToken();
       AuthResponseModel? authResponse = response.authResponseModel;
       if (authResponse != null) {
         bool isProfileComplete = (authResponse.fName != null &&
