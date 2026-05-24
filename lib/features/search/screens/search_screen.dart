@@ -108,7 +108,7 @@ class SearchScreenState extends State<SearchScreen>
                             children: [
                               const SizedBox(
                                   height: Dimensions.paddingSizeDefault),
-                              Text('search_items_and_stores'.tr,
+                              Text('search_vouchers_and_partners'.tr,
                                   style: robotoMedium),
                               const SizedBox(
                                   height: Dimensions.paddingSizeDefault),

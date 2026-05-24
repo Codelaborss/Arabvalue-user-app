@@ -504,8 +504,12 @@ class Item {
       }
     }
     type = json['type'];
-    voucherIds = json['voucher_ids'];
-    branchIds = json['branch_ids'];
+    voucherIds = json['voucher_ids'] is List
+        ? jsonEncode(json['voucher_ids'])
+        : json['voucher_ids']?.toString();
+    branchIds = json['branch_ids'] is List
+        ? jsonEncode(json['branch_ids'])
+        : json['branch_ids']?.toString();
     validUntil = json['valid_until'];
     if (json['product'] != null) {
       product = [];

@@ -103,7 +103,8 @@ class SearchResultWidgetState extends State<SearchResultWidget> {
                       Center(
                         child: Padding(
                           padding: EdgeInsets.only(top: context.height * 0.2),
-                          child: Text('no_item_found'.tr, style: robotoMedium),
+                          child:
+                              Text('no_vouchers_found'.tr, style: robotoMedium),
                         ),
                       ),
                   ],

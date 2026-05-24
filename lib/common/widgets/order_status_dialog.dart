@@ -51,7 +51,7 @@ class _OrderStatusDialogState extends State<OrderStatusDialog> {
       if (status == 'approved' && !_cancelled) {
         Future.delayed(Duration.zero, () {
           if (Get.isDialogOpen ?? false) {
-            Get.back();
+            Navigator.pop(context);
             Get.toNamed(RouteHelper.getCheckoutRoute('buy_now'),
                 arguments: CheckoutScreen(
                   storeId: null,
@@ -85,7 +85,7 @@ class _OrderStatusDialogState extends State<OrderStatusDialog> {
             const SizedBox(height: Dimensions.paddingSizeLarge),
             TextButton(
                 onPressed: () {
-                  Get.back();
+                  Navigator.pop(context);
                 },
                 child: Text('close'.tr))
           ]),
@@ -139,7 +139,7 @@ class _OrderStatusDialogState extends State<OrderStatusDialog> {
                 // Close dialog immediately and return a 'cancelled' signal
                 _cancelled = true;
                 if (Get.isDialogOpen ?? false) {
-                  Get.back(result: 'cancelled');
+                  Navigator.pop(context, 'cancelled');
                 }
                 // Try removing from cart in background (may not exist yet)
                 // We also schedule a delayed removal check just in case it's mid-flight

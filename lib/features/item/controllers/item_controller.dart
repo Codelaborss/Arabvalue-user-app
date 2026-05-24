@@ -1388,33 +1388,22 @@ class ItemController extends GetxController implements GetxService {
 
   void navigateToItemPage(Item? item, BuildContext context,
       {bool inStore = false, bool isCampaign = false}) {
-    if (Get.find<SplashController>()
-            .configModel!
-            .moduleConfig!
-            .module!
-            .showRestaurantText! ||
-        item!.moduleType == 'food') {
-      ResponsiveHelper.isMobile(context)
-          ? Get.bottomSheet(
-              ItemBottomSheet(
-                  itemId: item!.id!,
-                  inStorePage: inStore,
-                  isCampaign: isCampaign),
-              backgroundColor: Colors.transparent,
-              isScrollControlled: true,
-            )
-          : Get.dialog(
-              Dialog(
-                  child: ItemBottomSheet(
-                      itemId: item!.id!,
-                      inStorePage: inStore,
-                      isCampaign: isCampaign)),
-            );
-    } else {
-      Get.toNamed(RouteHelper.getItemDetailsRoute(item.id, inStore),
-          arguments: ItemDetailsScreen(
-              itemId: item.id!, inStorePage: inStore, isCampaign: isCampaign));
-    }
+    ResponsiveHelper.isMobile(context)
+        ? Get.bottomSheet(
+            ItemBottomSheet(
+                itemId: item!.id!,
+                inStorePage: inStore,
+                isCampaign: isCampaign),
+            backgroundColor: Colors.transparent,
+            isScrollControlled: true,
+          )
+        : Get.dialog(
+            Dialog(
+                child: ItemBottomSheet(
+                    itemId: item!.id!,
+                    inStorePage: inStore,
+                    isCampaign: isCampaign)),
+          );
   }
 
   void itemDirectlyAddToCart(Item? item, BuildContext context,
@@ -1503,12 +1492,7 @@ class ItemController extends GetxController implements GetxService {
           Get.find<CartController>().addToCartOnline(onlineCart);
           showCartSnackBar();
         }
-      } else if (Get.find<SplashController>()
-              .configModel!
-              .moduleConfig!
-              .module!
-              .showRestaurantText! ||
-          _item?.moduleType == AppConstants.food) {
+      } else {
         ResponsiveHelper.isMobile(Get.context)
             ? Get.bottomSheet(
                 ItemBottomSheet(
@@ -1525,10 +1509,6 @@ class ItemController extends GetxController implements GetxService {
                         inStorePage: inStore,
                         isCampaign: isCampaign)),
               );
-      } else {
-        Get.toNamed(RouteHelper.getItemDetailsRoute(_item!.id, inStore),
-            arguments:
-                ItemDetailsScreen(itemId: _item!.id!, inStorePage: inStore));
       }
     });
   }

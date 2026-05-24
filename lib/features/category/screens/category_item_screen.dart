@@ -10,6 +10,7 @@ import 'package:sixam_mart/util/styles.dart';
 import 'package:sixam_mart/common/widgets/item_view.dart';
 import 'package:sixam_mart/common/widgets/menu_drawer.dart';
 import 'package:sixam_mart/common/widgets/web_menu_bar.dart';
+import 'package:sixam_mart/common/widgets/paginated_list_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sixam_mart/common/widgets/profile_notification_widget.dart';
@@ -45,60 +46,6 @@ class CategoryItemScreenState extends State<CategoryItemScreen>
       Get.find<CategoryController>().type,
       false,
     );
-
-    scrollController.addListener(() {
-      if (scrollController.position.pixels ==
-              scrollController.position.maxScrollExtent &&
-          Get.find<CategoryController>().categoryItemList != null &&
-          !Get.find<CategoryController>().isLoading) {
-        int pageSize = (Get.find<CategoryController>().pageSize! / 10).ceil();
-        if (Get.find<CategoryController>().offset < pageSize) {
-          if (kDebugMode) {
-            print('end of the page');
-          }
-          Get.find<CategoryController>().showBottomLoader();
-          Get.find<CategoryController>().getCategoryItemList(
-            Get.find<CategoryController>().subCategoryIndex == 0
-                ? widget.categoryID
-                : Get.find<CategoryController>()
-                    .subCategoryList![
-                        Get.find<CategoryController>().subCategoryIndex]
-                    .id
-                    .toString(),
-            Get.find<CategoryController>().offset + 1,
-            Get.find<CategoryController>().type,
-            false,
-          );
-        }
-      }
-    });
-    storeScrollController.addListener(() {
-      if (storeScrollController.position.pixels ==
-              storeScrollController.position.maxScrollExtent &&
-          Get.find<CategoryController>().categoryStoreList != null &&
-          !Get.find<CategoryController>().isLoading) {
-        int pageSize =
-            (Get.find<CategoryController>().restPageSize! / 10).ceil();
-        if (Get.find<CategoryController>().offset < pageSize) {
-          if (kDebugMode) {
-            print('end of the page');
-          }
-          Get.find<CategoryController>().showBottomLoader();
-          Get.find<CategoryController>().getCategoryStoreList(
-            Get.find<CategoryController>().subCategoryIndex == 0
-                ? widget.categoryID
-                : Get.find<CategoryController>()
-                    .subCategoryList![
-                        Get.find<CategoryController>().subCategoryIndex]
-                    .id
-                    .toString(),
-            Get.find<CategoryController>().offset + 1,
-            Get.find<CategoryController>().type,
-            false,
-          );
-        }
-      }
-    });
   }
 
   @override
@@ -508,37 +455,78 @@ class CategoryItemScreenState extends State<CategoryItemScreen>
                               children: [
                                 SingleChildScrollView(
                                   controller: scrollController,
-                                  child: ItemsView(
-                                    isStore: false,
-                                    items: item,
-                                    stores: null,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal:
-                                            Dimensions.paddingSizeExtraLarge,
-                                        vertical:
-                                            Dimensions.paddingSizeDefault),
-                                    noDataText: 'no_category_voucher_found'.tr,
+                                  child: PaginatedListView(
+                                    scrollController: scrollController,
+                                    totalSize: catController.pageSize,
+                                    offset: catController.offset,
+                                    onPaginate: (int? offset) async {
+                                      catController.showBottomLoader();
+                                      catController.getCategoryItemList(
+                                        catController.subCategoryIndex == 0
+                                            ? widget.categoryID
+                                            : catController
+                                                .subCategoryList![catController
+                                                    .subCategoryIndex]
+                                                .id
+                                                .toString(),
+                                        offset!,
+                                        catController.type,
+                                        false,
+                                      );
+                                    },
+                                    itemView: ItemsView(
+                                      isStore: false,
+                                      items: item,
+                                      stores: null,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal:
+                                              Dimensions.paddingSizeExtraLarge,
+                                          vertical:
+                                              Dimensions.paddingSizeDefault),
+                                      noDataText:
+                                          'no_category_voucher_found'.tr,
+                                    ),
                                   ),
                                 ),
                                 SingleChildScrollView(
                                   controller: storeScrollController,
-                                  child: ItemsView(
-                                    isStore: true,
-                                    items: null,
-                                    stores: stores,
-                                    isPartner: true,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal:
-                                            Dimensions.paddingSizeExtraLarge,
-                                        vertical:
-                                            Dimensions.paddingSizeDefault),
-                                    noDataText: Get.find<SplashController>()
-                                            .configModel!
-                                            .moduleConfig!
-                                            .module!
-                                            .showRestaurantText!
-                                        ? 'no_category_partner_found'.tr
-                                        : 'no_category_partner_found'.tr,
+                                  child: PaginatedListView(
+                                    scrollController: storeScrollController,
+                                    totalSize: catController.restPageSize,
+                                    offset: catController.offset,
+                                    onPaginate: (int? offset) async {
+                                      catController.showBottomLoader();
+                                      catController.getCategoryStoreList(
+                                        catController.subCategoryIndex == 0
+                                            ? widget.categoryID
+                                            : catController
+                                                .subCategoryList![catController
+                                                    .subCategoryIndex]
+                                                .id
+                                                .toString(),
+                                        offset!,
+                                        catController.type,
+                                        false,
+                                      );
+                                    },
+                                    itemView: ItemsView(
+                                      isStore: true,
+                                      items: null,
+                                      stores: stores,
+                                      isPartner: true,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal:
+                                              Dimensions.paddingSizeExtraLarge,
+                                          vertical:
+                                              Dimensions.paddingSizeDefault),
+                                      noDataText: Get.find<SplashController>()
+                                              .configModel!
+                                              .moduleConfig!
+                                              .module!
+                                              .showRestaurantText!
+                                          ? 'no_category_partner_found'.tr
+                                          : 'no_category_partner_found'.tr,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -919,33 +907,75 @@ class CategoryItemScreenState extends State<CategoryItemScreen>
                         children: [
                           SingleChildScrollView(
                             controller: scrollController,
-                            child: ItemsView(
-                              isStore: false,
-                              items: item,
-                              stores: null,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: Dimensions.paddingSizeExtraLarge,
-                                  vertical: Dimensions.paddingSizeDefault),
-                              noDataText: 'no_category_voucher_found'.tr,
+                            child: PaginatedListView(
+                              scrollController: scrollController,
+                              totalSize: catController.pageSize,
+                              offset: catController.offset,
+                              onPaginate: (int? offset) async {
+                                catController.showBottomLoader();
+                                catController.getCategoryItemList(
+                                  catController.subCategoryIndex == 0
+                                      ? widget.categoryID
+                                      : catController
+                                          .subCategoryList![
+                                              catController.subCategoryIndex]
+                                          .id
+                                          .toString(),
+                                  offset!,
+                                  catController.type,
+                                  false,
+                                );
+                              },
+                              itemView: ItemsView(
+                                isStore: false,
+                                items: item,
+                                stores: null,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal:
+                                        Dimensions.paddingSizeExtraLarge,
+                                    vertical: Dimensions.paddingSizeDefault),
+                                noDataText: 'no_category_voucher_found'.tr,
+                              ),
                             ),
                           ),
                           SingleChildScrollView(
                             controller: storeScrollController,
-                            child: ItemsView(
-                              isStore: true,
-                              items: null,
-                              stores: stores,
-                              isPartner: true,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: Dimensions.paddingSizeExtraLarge,
-                                  vertical: Dimensions.paddingSizeDefault),
-                              noDataText: Get.find<SplashController>()
-                                      .configModel!
-                                      .moduleConfig!
-                                      .module!
-                                      .showRestaurantText!
-                                  ? 'no_category_partner_found'.tr
-                                  : 'no_category_partner_found'.tr,
+                            child: PaginatedListView(
+                              scrollController: storeScrollController,
+                              totalSize: catController.restPageSize,
+                              offset: catController.offset,
+                              onPaginate: (int? offset) async {
+                                catController.showBottomLoader();
+                                catController.getCategoryStoreList(
+                                  catController.subCategoryIndex == 0
+                                      ? widget.categoryID
+                                      : catController
+                                          .subCategoryList![
+                                              catController.subCategoryIndex]
+                                          .id
+                                          .toString(),
+                                  offset!,
+                                  catController.type,
+                                  false,
+                                );
+                              },
+                              itemView: ItemsView(
+                                isStore: true,
+                                items: null,
+                                stores: stores,
+                                isPartner: true,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal:
+                                        Dimensions.paddingSizeExtraLarge,
+                                    vertical: Dimensions.paddingSizeDefault),
+                                noDataText: Get.find<SplashController>()
+                                        .configModel!
+                                        .moduleConfig!
+                                        .module!
+                                        .showRestaurantText!
+                                    ? 'no_category_partner_found'.tr
+                                    : 'no_category_partner_found'.tr,
+                              ),
                             ),
                           ),
                         ],
