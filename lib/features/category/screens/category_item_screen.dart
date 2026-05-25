@@ -286,7 +286,7 @@ class CategoryItemScreenState extends State<CategoryItemScreen>
                                                   .module!
                                                   .showRestaurantText!
                                               ? 'partners'.tr
-                                              : 'partners'.tr),
+                                              : 'stores'.tr),
                                     ],
                                   ),
                                 ),
@@ -525,7 +525,7 @@ class CategoryItemScreenState extends State<CategoryItemScreen>
                                               .module!
                                               .showRestaurantText!
                                           ? 'no_category_partner_found'.tr
-                                          : 'no_category_partner_found'.tr,
+                                          : 'no_category_store_found'.tr,
                                     ),
                                   ),
                                 ),
@@ -744,7 +744,7 @@ class CategoryItemScreenState extends State<CategoryItemScreen>
                                               .module!
                                               .showRestaurantText!
                                           ? 'partners'.tr
-                                          : 'partners'.tr),
+                                          : 'stores'.tr),
                                 ],
                               ),
                             ),
@@ -974,7 +974,7 @@ class CategoryItemScreenState extends State<CategoryItemScreen>
                                         .module!
                                         .showRestaurantText!
                                     ? 'no_category_partner_found'.tr
-                                    : 'no_category_partner_found'.tr,
+                                    : 'no_category_store_found'.tr,
                               ),
                             ),
                           ),

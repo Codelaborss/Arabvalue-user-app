@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:sixam_mart/features/auth/controllers/auth_controller.dart';
 import 'package:sixam_mart/features/favourite/controllers/favourite_controller.dart';
@@ -18,15 +19,17 @@ void route({NotificationBodyModel? body}) {
       Get.find<SplashController>().configModel!.maintenanceMode!;
   bool needsUpdate = AppConstants.appVersion < minimumVersion!;
 
-  if (needsUpdate || isMaintenanceMode) {
-    Get.offNamed(RouteHelper.getUpdateRoute(needsUpdate));
-  } else {
-    if (body != null) {
-      _forNotificationRouteProcess(body);
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (needsUpdate || isMaintenanceMode) {
+      Get.offNamed(RouteHelper.getUpdateRoute(needsUpdate));
     } else {
-      _handleUserRouting();
+      if (body != null) {
+        _forNotificationRouteProcess(body);
+      } else {
+        _handleUserRouting();
+      }
     }
-  }
+  });
 }
 
 double? _getMinimumVersion() {
@@ -83,7 +86,9 @@ Future<void> _forLoggedInUserRouteProcess() async {
 }
 
 void _newlyRegisteredRouteProcess() {
-  if (AppConstants.languages.length > 1) {
+  if (GetPlatform.isWeb) {
+    Get.offNamed(RouteHelper.getOnBoardingRoute());
+  } else if (AppConstants.languages.length > 1) {
     Get.offNamed(RouteHelper.getLanguageRoute('splash'));
   } else {
     Get.offNamed(RouteHelper.getOnBoardingRoute());

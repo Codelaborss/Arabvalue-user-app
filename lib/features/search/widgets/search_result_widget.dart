@@ -7,6 +7,8 @@ import 'package:sixam_mart/common/widgets/footer_view.dart';
 import 'package:sixam_mart/common/widgets/item_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sixam_mart/util/app_constants.dart';
+import 'package:sixam_mart/features/splash/controllers/splash_controller.dart';
 
 class SearchResultWidget extends StatefulWidget {
   final String searchText;
@@ -83,13 +85,13 @@ class SearchResultWidgetState extends State<SearchResultWidget> {
                       ),
                     ],
                     if (storeLength > 0) ...[
-                      Padding(
+                        Padding(
                         padding: const EdgeInsets.symmetric(
-                            vertical: Dimensions.paddingSizeSmall),
-                        child: Text('partners'.tr,
-                            style: robotoBold.copyWith(
-                                fontSize: Dimensions.fontSizeLarge)),
-                      ),
+                          vertical: Dimensions.paddingSizeSmall),
+                        child: Text(AppConstants.partnerLabel(Get.find<SplashController>().configModel!.moduleConfig!.module!.showRestaurantText!),
+                          style: robotoBold.copyWith(
+                            fontSize: Dimensions.fontSizeLarge)),
+                        ),
                       ItemsView(
                         isStore: true,
                         items: null,

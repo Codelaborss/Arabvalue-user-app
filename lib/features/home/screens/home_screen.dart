@@ -55,7 +55,7 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   static Future<void> loadData(bool reload, {bool fromModule = false}) async {
-    Get.find<LocationController>().syncZoneData();
+    await Get.find<LocationController>().syncZoneData();
     Get.find<FlashSaleController>().setEmptyFlashSale(fromModule: fromModule);
     if (AuthHelper.isLoggedIn()) {
       Get.find<AuthController>().updateToken();

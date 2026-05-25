@@ -121,7 +121,7 @@ class _StoreScreenState extends State<StoreScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: CustomAppBar(title: 'partners'.tr, showProfile: true),
+      appBar: CustomAppBar(title: AppConstants.partnerLabel(Get.find<SplashController>().configModel!.moduleConfig!.module!.showRestaurantText!), showProfile: true),
         endDrawer: const MenuDrawer(),
         endDrawerEnableOpenDragGesture: false,
         backgroundColor: Theme.of(context).colorScheme.surface,
@@ -491,7 +491,7 @@ class _StoreScreenState extends State<StoreScreen> {
                                               _buildInfoBadge(
                                                   context,
                                                   Icons.location_on_outlined,
-                                                  '${store?.distance != null ? store!.distance!.toStringAsFixed(1) : '0'} ${'km'.tr}'),
+                                                  '${store?.distance != null ? (store!.distance! / 1000).toStringAsFixed(1) : '0'} ${'km'.tr}'),
                                             ],
                                           ),
                                         ],

@@ -42,7 +42,7 @@ class AllStoreFilterWidget extends StatelessWidget {
                                 fontSize: Dimensions.fontSizeLarge),
                           ),
                           Text(
-                            '${storeController.storeModel?.totalSize ?? 0} ${Get.find<SplashController>().configModel!.moduleConfig!.module!.showRestaurantText! ? 'restaurants_near_youss'.tr : 'stores_near_you'.tr}',
+                            '${storeController.storeModel?.totalSize ?? 0} ${Get.find<SplashController>().configModel!.moduleConfig!.module!.showRestaurantText! ? 'restaurants_near_you'.tr : 'stores_near_you'.tr}',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: robotoRegular.copyWith(

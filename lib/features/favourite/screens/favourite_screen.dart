@@ -11,6 +11,7 @@ import 'package:sixam_mart/common/widgets/not_logged_in_screen.dart';
 import 'package:sixam_mart/features/favourite/widgets/fav_item_view_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sixam_mart/util/app_constants.dart';
 
 class FavouriteScreen extends StatefulWidget {
   const FavouriteScreen({super.key});
@@ -73,7 +74,7 @@ class FavouriteScreenState extends State<FavouriteScreen>
                         color: Theme.of(context).primaryColor),
                     tabs: [
                       Tab(text: 'voucher'.tr),
-                      Tab(text: 'partners'.tr),
+                      Tab(text: AppConstants.partnerLabel(Get.find<SplashController>().configModel!.moduleConfig!.module!.showRestaurantText!)),
                     ],
                   ),
                 ),

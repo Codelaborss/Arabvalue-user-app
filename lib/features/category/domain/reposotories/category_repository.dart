@@ -12,6 +12,8 @@ import 'package:sixam_mart/features/language/controllers/language_controller.dar
 import 'package:sixam_mart/api/api_client.dart';
 import 'package:sixam_mart/util/app_constants.dart';
 import 'package:sixam_mart/features/category/domain/reposotories/category_repository_interface.dart';
+import 'package:sixam_mart/features/address/domain/models/address_model.dart';
+import 'package:sixam_mart/helper/address_helper.dart';
 
 class CategoryRepository implements CategoryRepositoryInterface {
   final ApiClient apiClient;
@@ -57,6 +59,13 @@ class CategoryRepository implements CategoryRepositoryInterface {
 
     String cacheId = AppConstants.categoryUri +
         Get.find<SplashController>().module!.id!.toString();
+
+    AddressModel? address = AddressHelper.getUserAddressFromSharedPref();
+    if (address != null &&
+        address.zoneIds != null &&
+        address.zoneIds!.isNotEmpty) {
+      cacheId += '-${address.zoneIds!.join('_')}';
+    }
 
     switch (source) {
       case DataSourceEnum.client:
@@ -127,8 +136,9 @@ class CategoryRepository implements CategoryRepositoryInterface {
     if (kDebugMode) {
       print('====> Categories Stores API - Headers with userId: $headers');
     }
-    Response response = await apiClient
-        .getData('$uri$idParam?limit=10&offset=$offset&type=$type', headers: headers);
+    Response response = await apiClient.getData(
+        '$uri$idParam?limit=10&offset=$offset&type=$type',
+        headers: headers);
     if (response.statusCode == 200) {
       categoryStore = StoreModel.fromJson(response.body);
     }
@@ -150,8 +160,9 @@ class CategoryRepository implements CategoryRepositoryInterface {
   Future<bool> saveUserInterests(List<int?> interests) async {
     // Get headers with user ID from login response
     Map<String, String> headers = await apiClient.getHeaderWithUserId();
-    Response response = await apiClient
-        .postData(AppConstants.interestUri, {"interest": interests}, headers: headers);
+    Response response = await apiClient.postData(
+        AppConstants.interestUri, {"interest": interests},
+        headers: headers);
     return (response.statusCode == 200);
   }
 

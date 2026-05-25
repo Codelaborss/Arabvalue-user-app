@@ -54,12 +54,6 @@ class _PinCodeLoginWidgetState extends State<PinCodeLoginWidget> {
             (authResponse.phone != null && authResponse.phone!.isNotEmpty) &&
             (authResponse.email != null && authResponse.email!.isNotEmpty);
 
-        showCustomSnackBar(
-          response.message ?? 'logged_in_successfully'.tr,
-          isError: false,
-          getXSnackBar: true,
-        );
-
         if (isProfileComplete) {
           if (widget.backFromThis) {
             Get.back();

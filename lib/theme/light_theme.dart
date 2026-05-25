@@ -67,11 +67,6 @@ ThemeData light({Color? color}) {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(500)),
       backgroundColor: buttonColor,
     ),
-    bottomAppBarTheme: const BottomAppBarThemeData(
-      surfaceTintColor: Colors.white,
-      height: 60,
-      padding: EdgeInsets.symmetric(vertical: 5),
-    ),
     appBarTheme: AppBarTheme(
       backgroundColor: navbarColor,
       foregroundColor: navbarTextColor,

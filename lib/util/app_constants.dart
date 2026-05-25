@@ -390,4 +390,8 @@ class AppConstants {
   static const String hourly = 'hourly';
   static const String distanceWise = 'distance_wise';
   static const String dayWise = 'day_wise';
+
+    static String partnerLabel(bool showRestaurantText) {
+        return showRestaurantText ? 'partners'.tr : 'stores'.tr;
+    }
 }

@@ -18,6 +18,7 @@ import 'package:sixam_mart/util/images.dart';
 import 'package:sixam_mart/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sixam_mart/features/splash/controllers/splash_controller.dart';
 import 'package:sixam_mart/common/widgets/custom_dropdown.dart';
 import 'package:sixam_mart/features/profile/controllers/profile_controller.dart';
 import 'package:sixam_mart/common/widgets/custom_image.dart';
@@ -354,8 +355,8 @@ class WebMenuBar extends StatelessWidget implements PreferredSizeWidget {
                             }
                           }),
                       const SizedBox(width: 20),
-                      MenuButton(
-                          title: 'stores'.tr,
+                        MenuButton(
+                          title: AppConstants.partnerLabel(Get.find<SplashController>().configModel!.moduleConfig!.module!.showRestaurantText!),
                           onTap: () {
                             if (AddressHelper.getUserAddressFromSharedPref() !=
                                 null) {

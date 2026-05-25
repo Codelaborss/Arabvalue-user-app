@@ -22,11 +22,6 @@ ThemeData dark({Color color = const Color(0xFF002e80)}) => ThemeData(
       floatingActionButtonTheme: FloatingActionButtonThemeData(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(500))),
-      bottomAppBarTheme: const BottomAppBarThemeData(
-        surfaceTintColor: Colors.black,
-        height: 60,
-        padding: EdgeInsets.symmetric(vertical: 5),
-      ),
       dividerTheme:
           const DividerThemeData(thickness: 0.5, color: Color(0xFFA0A4A8)),
       tabBarTheme: const TabBarThemeData(dividerColor: Colors.transparent),
